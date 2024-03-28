@@ -9,6 +9,12 @@ let chanceDependencies: [Target.Dependency] = [
 
 let package = Package(
     name: "swift-chance",
+    platforms: [
+        .macOS(.v13),
+        .iOS(.v16),
+        .tvOS(.v16),
+        .watchOS(.v9)
+    ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
