@@ -24,7 +24,7 @@ public extension Gen {
 
 // MARK: Global Methods
 @inlinable
-public func zip<each T>(_ generators: repeat Gen<each T>) -> Gen<(repeat each T)> {
+public func zipAll<each T>(_ generators: repeat Gen<each T>) -> Gen<(repeat each T)> {
     .init {
         (repeat (each generators)(using: &$0))
     }
