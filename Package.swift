@@ -8,7 +8,7 @@ let chanceDependencies: [Target.Dependency] = [
 ]
 
 let package = Package(
-    name: "Chance",
+    name: "swift-chance",
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
