@@ -8,14 +8,20 @@ on:
 
 jobs:
   build:
-    name: Swift on ${{ matrix.os }}
+    name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
     strategy:
       matrix:
+        swift: ["5.9"]
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: ${{ matrix.swift }}
       - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: swift package resolve
       - name: Build
         run: swift build -v
       - name: Run tests
