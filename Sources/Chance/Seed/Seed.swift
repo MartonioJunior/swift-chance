@@ -45,11 +45,3 @@ public struct Seed {
         .init(value: seed, position: [position.x, position.y, position.z,position.w])
     }
 }
-
-// MARK: IteratorProtocol
-extension Seed: IteratorProtocol {
-    public mutating func next() -> Self? {
-        position[0] += 1
-        return self
-    }
-}

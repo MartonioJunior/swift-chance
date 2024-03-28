@@ -24,9 +24,7 @@ public struct SeedRandomNumberGenerator {
     
     // MARK: Methods
     mutating func advanceState() {
-        guard let nextState = seed.next() else { return }
-
-        seed = nextState
+        seed.position[0] += 1
     }
     
     public func peek() -> UInt64 { formula(seed.value, seed.rawPosition) }
@@ -49,12 +47,12 @@ public extension SeedRandomNumberGenerator {
         let thirdBitNoise: UInt = 0x1B56C4E9;
         
         var mangled: UInt = position
-        mangled *= firstBitNoise
-        mangled += seed
+        mangled &*= firstBitNoise
+        mangled &+= seed
         mangled ^= (mangled >> 8)
-        mangled *= secondBitNoise
+        mangled &*= secondBitNoise
         mangled ^= (mangled << 8)
-        mangled *= thirdBitNoise
+        mangled &*= thirdBitNoise
         mangled ^= (mangled >> 8)
         return UInt64(mangled)
     }
@@ -67,16 +65,16 @@ public extension SeedRandomNumberGenerator {
         let SQ5_BIT_NOISE5: UInt = 0x1b56c4f5;    // 00011011010101101100010011110101
         
         var mangledBits: UInt = position;
-        mangledBits *= SQ5_BIT_NOISE1;
-        mangledBits += seed;
+        mangledBits &*= SQ5_BIT_NOISE1;
+        mangledBits &+= seed;
         mangledBits ^= (mangledBits >> 9);
-        mangledBits += SQ5_BIT_NOISE2;
+        mangledBits &+= SQ5_BIT_NOISE2;
         mangledBits ^= (mangledBits >> 11);
-        mangledBits *= SQ5_BIT_NOISE3;
+        mangledBits &*= SQ5_BIT_NOISE3;
         mangledBits ^= (mangledBits >> 13);
-        mangledBits += SQ5_BIT_NOISE4;
+        mangledBits &+= SQ5_BIT_NOISE4;
         mangledBits ^= (mangledBits >> 15);
-        mangledBits *= SQ5_BIT_NOISE5;
+        mangledBits &*= SQ5_BIT_NOISE5;
         mangledBits ^= (mangledBits >> 17);
         return UInt64(mangledBits);
     }
