@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Collection+Utilities.swift
 //  
 //
 //  Created by Martônio Júnior on 18/02/24.
