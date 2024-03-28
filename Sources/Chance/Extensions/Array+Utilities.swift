@@ -1,5 +1,5 @@
 //
-//  Collection+Utilities.swift
+//  Array+Utilities.swift
 //  
 //
 //  Created by Martônio Júnior on 10/02/24.
@@ -14,8 +14,10 @@ public extension Array {
     }
 
     mutating func removeRandom(count: Gen<Int> = .always(1), indexGenerator: Gen<Index>) -> [Element] {
-        return indexGenerator.array(of: .always(count.run())).run().map {
-            remove(at: $0)
+        return indexGenerator.array(of: .always(count.run())).run().compactMap {
+            guard indices.contains($0) else { return nil }
+            
+            return remove(at: $0)
         }
     }
 }
