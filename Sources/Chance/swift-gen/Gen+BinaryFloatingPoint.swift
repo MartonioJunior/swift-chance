@@ -8,7 +8,7 @@
 import Foundation
 import Gen
 
-extension Gen where Value: BinaryFloatingPoint, Value.RawSignificand: FixedWidthInteger {
+public extension Gen where Value: BinaryFloatingPoint, Value.RawSignificand: FixedWidthInteger {
     static var binaryFloatingPoint: Gen {
         .init {
             .random(in: -1_000_000_000...1_000_000_000, using: &$0)
@@ -28,7 +28,7 @@ extension Gen where Value: BinaryFloatingPoint, Value.RawSignificand: FixedWidth
     }
 }
 
-extension BinaryFloatingPoint where RawSignificand: FixedWidthInteger {
+public extension BinaryFloatingPoint where RawSignificand: FixedWidthInteger {
     static func random() -> Self {
         Gen<Self>.binaryFloatingPoint.run()
     }
