@@ -8,7 +8,7 @@ let chanceDependencies: [Target.Dependency] = [
 ]
 
 let package = Package(
-    name: "swift-chance",
+    name: "SwiftChance",
     platforms: [
         .macOS(.v13),
         .iOS(.v16),
@@ -18,8 +18,8 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "Chance",
-            targets: ["Chance"]),
+            name: "SwiftChance",
+            targets: ["SwiftChance"]),
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-gen.git", from: "0.4.0")
@@ -28,11 +28,11 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Chance",
+            name: "SwiftChance",
             dependencies: chanceDependencies
         ),
         .testTarget(
-            name: "ChanceTests",
-            dependencies: ["Chance"]),
+            name: "SwiftChanceTests",
+            dependencies: ["SwiftChance"]),
     ]
 )
