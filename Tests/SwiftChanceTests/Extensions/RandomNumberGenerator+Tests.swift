@@ -7,7 +7,7 @@
 
 import XCTest
 @testable import Gen
-@testable import Chance
+@testable import SwiftChance
 
 final class RandomNumberGenerator_Tests: XCTestCase {
     // MARK: Parameters

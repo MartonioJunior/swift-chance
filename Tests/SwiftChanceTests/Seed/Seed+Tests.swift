@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Chance
+@testable import SwiftChance
 
 final class Seed_Tests: XCTestCase {
     // MARK: Test Cases

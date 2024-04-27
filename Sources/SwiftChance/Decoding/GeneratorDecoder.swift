@@ -8,8 +8,15 @@
 import Foundation
 import Gen
 
+
+/// Special decoder based on Gen that generates any type in a controllable manner by using a custom data generator (`Gen<UInt64>`)
+///
+/// Can be used as a way of creating random test cases of any type
 public struct GeneratorDecoder: Decoder {
     // MARK: Decoder
+    /// Base generator used for creating all values during the decoding process
+    ///
+    /// `GeneratorDecoder` uses `UInt64` type as the data source for creating more complex data types inside of the application, passing it to `KeyedContainer`, `SingleValueContainer` and `UnkeyedContainer`
     var dataGenerator: Gen<UInt64>
     public var codingPath: [CodingKey] = []
     public var userInfo: [CodingUserInfoKey : Any] = [:]
@@ -31,7 +38,9 @@ public struct GeneratorDecoder: Decoder {
 
 // MARK: KeyedContainer
 extension GeneratorDecoder {
+    /// Keyed Container for `GeneratorDecoder`
     struct KeyedContainer<Key: CodingKey>: KeyedDecodingContainerProtocol {
+        /// Generator used for creating all values in this container during the decode process
         var dataGenerator: Gen<UInt64>
         public var codingPath: [CodingKey] = []
         public var allKeys: [Key] = []
@@ -70,7 +79,9 @@ extension GeneratorDecoder {
 
 // MARK: SingleValueContainer
 extension GeneratorDecoder {
+    /// Single Value Container for `GeneratorDecoder`
     struct SingleValueContainer: SingleValueDecodingContainer {
+        /// Generator used for creating all values in this container during the decode process
         var dataGenerator: Gen<UInt64>
 
         var codingPath: [CodingKey] = []
@@ -143,6 +154,7 @@ extension GeneratorDecoder {
 
 // MARK: UnkeyedContainer
 extension GeneratorDecoder {
+    /// Unkeyed Container for `GeneratorDecoder`
     struct UnkeyedContainer: UnkeyedDecodingContainer {
         var dataGenerator: Gen<UInt64>
         var codingPath: [any CodingKey] = []

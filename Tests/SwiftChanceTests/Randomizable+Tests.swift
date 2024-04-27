@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Chance
+@testable import SwiftChance
 
 // MARK: Stub
 extension Randomizable_Tests {

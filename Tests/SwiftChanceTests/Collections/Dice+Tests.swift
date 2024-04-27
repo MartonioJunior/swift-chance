@@ -7,7 +7,7 @@
 
 import XCTest
 import Gen
-@testable import Chance
+@testable import SwiftChance
 
 final class Dice_Tests: XCTestCase {
     // MARK: Parameters

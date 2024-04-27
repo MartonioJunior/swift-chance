@@ -7,7 +7,7 @@
 
 import XCTest
 import Gen
-@testable import Chance
+@testable import SwiftChance
 
 final class BinaryFloatingPoint_Tests: XCTestCase {
     typealias RNG = SystemRandomNumberGenerator

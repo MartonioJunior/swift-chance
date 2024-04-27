@@ -7,7 +7,7 @@
 
 import XCTest
 import Gen
-@testable import Chance
+@testable import SwiftChance
 
 final class Bool_Tests: XCTestCase {
     func test_chance_returnsGeneratorWithOddsOfTrue()
