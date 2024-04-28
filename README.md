@@ -4,7 +4,6 @@ A library with utilities for randomness
 
 ## Table of Contents
 
-  - [Motivation](#motivation)
   - [Features](#features)
   - [Installation](#installation)
   - [License](#license)
