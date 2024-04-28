@@ -76,7 +76,7 @@ public extension SeedRandomNumberGenerator {
     }
     
     /// Evolution of Squirrel3 that allows for more interesting and better distributed values.
-    /// Adapted from Squirrel Eiserloh's C++ implementation of SquirrelNoise5, original code licensed under [CC-BY-3.0](https://creativecommons.org/licenses/by/3.0/us/)
+    /// Adapted from [Squirrel Eiserloh's C++ implementation of SquirrelNoise5](http://eiserloh.net/noise/SquirrelNoise5.hpp), original code licensed under [CC-BY-3.0](https://creativecommons.org/licenses/by/3.0/us/)
     ///
     /// - Parameters:
     ///   - seed: the seed's value
