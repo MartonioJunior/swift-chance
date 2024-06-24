@@ -8,6 +8,7 @@ let chanceDependencies: [Target.Dependency] = [
 ]
 
 let settings: [SwiftSetting] = [
+    .enableUpcomingFeature("GlobalActorIsolatedTypesUsability"),
     .enableUpcomingFeature("FullTypedThrows"),
     .enableUpcomingFeature("InternalImportsByDefault")
 ]
