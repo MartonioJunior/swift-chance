@@ -18,7 +18,7 @@ public struct GeneratorDecoder: Decoder {
     ///
     /// `GeneratorDecoder` uses `UInt64` type as the data source for creating more complex data types inside of the application, passing it to `KeyedContainer`, `SingleValueContainer` and `UnkeyedContainer`
     var dataGenerator: Gen<UInt64>
-    public var codingPath: [CodingKey] = []
+    public var codingPath: [any CodingKey] = []
     public var userInfo: [CodingUserInfoKey : Any] = [:]
     
     public func container<Key: CodingKey>(
@@ -27,11 +27,11 @@ public struct GeneratorDecoder: Decoder {
         .init(KeyedContainer(dataGenerator: dataGenerator))
     }
 
-    public func unkeyedContainer() throws -> UnkeyedDecodingContainer {
+    public func unkeyedContainer() throws -> any UnkeyedDecodingContainer {
         UnkeyedContainer(dataGenerator: dataGenerator)
     }
     
-    public func singleValueContainer() throws -> SingleValueDecodingContainer {
+    public func singleValueContainer() throws -> any SingleValueDecodingContainer {
         SingleValueContainer(dataGenerator: dataGenerator)
     }
 }
@@ -42,7 +42,7 @@ extension GeneratorDecoder {
     struct KeyedContainer<Key: CodingKey>: KeyedDecodingContainerProtocol {
         /// Generator used for creating all values in this container during the decode process
         var dataGenerator: Gen<UInt64>
-        public var codingPath: [CodingKey] = []
+        public var codingPath: [any CodingKey] = []
         public var allKeys: [Key] = []
         
         public func contains(_ key: Key) -> Bool { return true }
@@ -63,15 +63,15 @@ extension GeneratorDecoder {
         
         public func nestedUnkeyedContainer(
             forKey key: Key
-        ) throws -> UnkeyedDecodingContainer {
+        ) throws -> any UnkeyedDecodingContainer {
             UnkeyedContainer(dataGenerator: dataGenerator)
         }
         
-        public func superDecoder() throws -> Decoder {
+        public func superDecoder() throws -> any Decoder {
             GeneratorDecoder(dataGenerator: dataGenerator)
         }
 
-        public func superDecoder(forKey key: Key) throws -> Decoder {
+        public func superDecoder(forKey key: Key) throws -> any Decoder {
             GeneratorDecoder(dataGenerator: dataGenerator)
         }
     }
@@ -84,7 +84,7 @@ extension GeneratorDecoder {
         /// Generator used for creating all values in this container during the decode process
         var dataGenerator: Gen<UInt64>
 
-        var codingPath: [CodingKey] = []
+        var codingPath: [any CodingKey] = []
         
         func decodeNil() -> Bool {
             .init(truncating: .init(value: dataGenerator.run()))
