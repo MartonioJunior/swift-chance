@@ -7,6 +7,10 @@ let chanceDependencies: [Target.Dependency] = [
     .product(name: "Gen", package: "swift-gen")
 ]
 
+let settings: [SwiftSetting] = [
+    .enableUpcomingFeature("InternalImportsByDefault")
+]
+
 let package = Package(
     name: "SwiftChance",
     platforms: [
@@ -29,7 +33,8 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "SwiftChance",
-            dependencies: chanceDependencies
+            dependencies: chanceDependencies,
+            swiftSettings: settings
         ),
         .testTarget(
             name: "SwiftChanceTests",

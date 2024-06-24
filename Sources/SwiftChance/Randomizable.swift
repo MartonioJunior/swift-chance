@@ -5,8 +5,7 @@
 //  Created by Martônio Júnior on 10/02/24.
 //
 
-import Foundation
-import Gen
+public import Gen
 
 /// Protocol for describing how the type should be configured based on an input
 public protocol Randomizable {

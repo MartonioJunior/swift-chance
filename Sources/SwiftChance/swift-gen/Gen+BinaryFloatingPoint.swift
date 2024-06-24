@@ -5,8 +5,7 @@
 //  Created by Martônio Júnior on 24/10/23.
 //
 
-import Foundation
-import Gen
+public import Gen
 
 public extension Gen where Value: BinaryFloatingPoint, Value.RawSignificand: FixedWidthInteger {
     /// Creates a new generator for binary floating numbers between `-1_000_000_000...1_000_000_000`

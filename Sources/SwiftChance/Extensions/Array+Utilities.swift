@@ -5,8 +5,7 @@
 //  Created by Martônio Júnior on 10/02/24.
 //
 
-import Foundation
-import Gen
+public import Gen
 
 public extension Array {
     /// SwiftChance: Removes multiples elements at random

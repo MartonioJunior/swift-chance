@@ -24,7 +24,7 @@ final class Array_Tests: XCTestCase {
     
     func test_removeRandom_removesElementsWithIndexGenerator() {
         var copy = sut
-        var indexGenerator = Gen<Int>.always(0)
+        let indexGenerator = Gen<Int>.always(0)
         let value = copy.removeRandom(indexGenerator: indexGenerator)
         
         XCTAssertTrue(sut.contains(value))
@@ -33,7 +33,7 @@ final class Array_Tests: XCTestCase {
     }
     
     func test_removeRandom_returnsCollectionWhenAmountHigherThanCount() {
-        var copy = sut
+        _ = sut
         let result = sut.removeRandom(count: .always(5), indexGenerator: .always(0))
         
         XCTAssertTrue(result.allSatisfy((1...4).contains))

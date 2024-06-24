@@ -12,31 +12,31 @@ import Gen
 final class Gen_Tests: XCTestCase {
     // MARK: Test Cases
     func test_callAsFunction_returnsSameValueAsRun() {
-        var generator: Gen = .always(100)
+        let generator: Gen = .always(100)
         
         XCTAssertEqual(generator.run(), generator())
     }
     
     func test_callAsFunction_generator_returnsSameValueAsRun() {
-        var generator: Gen = .always(100)
+        let generator: Gen = .always(100)
         var rng = SystemRandomNumberGenerator()
         
         XCTAssertEqual(generator.run(using: &rng), generator(using: &rng))
     }
     
     func test_f_createsGeneratorWithClosure() {
-        var closure = { 4 }
-        var generator: Gen<Int> = .f(closure)
+        let closure = { 4 }
+        let generator: Gen<Int> = .f(closure)
 
         XCTAssertEqual(closure(), generator.run())
     }
     
     // MARK: Global Methods
     func test_zipAll_createsGeneratorByCombiningGenerators() {
-        var generatorA: Gen<Double> = .always(10)
-        var generatorB: Gen<String> = .always("s")
+        let generatorA: Gen<Double> = .always(10)
+        let generatorB: Gen<String> = .always("s")
         
-        var zippedGenerator = zipAll(generatorA, generatorB)
+        let zippedGenerator = zipAll(generatorA, generatorB)
         
         let (number, text) = zippedGenerator.run()
         

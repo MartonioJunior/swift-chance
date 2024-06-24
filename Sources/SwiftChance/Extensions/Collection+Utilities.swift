@@ -5,8 +5,7 @@
 //  Created by Martônio Júnior on 18/02/24.
 //
 
-import Foundation
-import Gen
+public import Gen
 
 public extension Collection {
     /// Generator that can return any element of this collection

@@ -5,8 +5,7 @@
 //  Created by Martônio Júnior on 10/02/24.
 //
 
-import Foundation
-import Gen
+public import Gen
 
 public extension Gen {
     // MARK: Methods
@@ -46,6 +45,6 @@ public func zipAll<each T>(_ generators: repeat Gen<each T>) -> Gen<(repeat each
 }
 
 // MARK: RandomNumberGenerator
-extension Gen: RandomNumberGenerator where Value == UInt64 {
+extension Gen: @retroactive RandomNumberGenerator where Value == UInt64 {
     mutating public func next() -> UInt64 { run() }
 }
