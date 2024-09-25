@@ -6,290 +6,317 @@
 //
 
 import XCTest
+import Testing
+@preconcurrency import Gen
 @testable import SwiftChance
 
 // MARK: Stubs
-extension GeneratorDecoder_Tests {
-    struct StubKey: CodingKey {
-        var stringValue: String
-        var intValue: Int?
-        
-        init() {
-            self.stringValue = ""
-            self.intValue = 0
-        }
-        
-        init?(stringValue: String) {
-            self.stringValue = stringValue
-        }
-        
-        init?(intValue: Int) {
-            self.intValue = intValue
-            self.stringValue = ""
-        }
+struct StubKey: CodingKey {
+    var stringValue: String
+    var intValue: Int?
+    
+    init() {
+        self.stringValue = ""
+        self.intValue = 0
+    }
+    
+    init?(stringValue: String) {
+        self.stringValue = stringValue
+    }
+    
+    init?(intValue: Int) {
+        self.intValue = intValue
+        self.stringValue = ""
     }
 }
 
-final class GeneratorDecoder_Tests: XCTestCase {
-    // MARK: Test Cases
-    func test_init_createsNewDecoder() {
-        let decoder = GeneratorDecoder(dataGenerator: .always(137))
+// MARK: GeneratorDecoder
+struct GeneratorDecoderTests {
+    @Test("Creates new Decoder", arguments: [
+        (Gen<UInt64>.always(137))
+    ])
+    func `init`(_ gen: Gen<UInt64>) async throws {
+        let decoder: GeneratorDecoder = .init(dataGenerator: gen)
+        #expect(decoder.dataGenerator() == 137)
+    }
+    
+    @Test("Creates Keyed Container", arguments: [
+        (GeneratorDecoder(dataGenerator: .always(137)))
+    ])
+    func container(_ decoder: GeneratorDecoder) async throws {
+        let container = try decoder.container(keyedBy: StubKey.self)
+        #expect(container != nil)
+    }
 
-        XCTAssertEqual(decoder.dataGenerator(), 137)
+    @Test("Creates Unkeyed Container", arguments: [
+        (GeneratorDecoder(dataGenerator: .always(137)), 137)
+    ])
+    func unkeyedContainer(_ decoder: GeneratorDecoder, outcome: UInt64) async throws {
+        let container = #require(decoder.unkeyedContainer() as? GeneratorDecoder.UnkeyedContainer)
+        #expect(container.dataGenerator.run() == outcome)
     }
     
-    func test_container_createsKeyedContainer() {
-        let decoder = GeneratorDecoder(dataGenerator: .always(137))
+    @Test("Creates Decoding Container", arguments: [
+        (GeneratorDecoder(dataGenerator: .always(137)), 137)
+    ])
+    func singleValueContainer(_ decoder: GeneratorDecoder, outcome: UInt64) async throws {
+        let container = #require(decoder.singleValueContainer() as? GeneratorDecoder.SingleValueContainer)
+        #expect(container.dataGenerator.run() == outcome)
+    }
+    
+    // MARK: GeneratorDecoder.KeyedContainer
+    @Suite("Keyed Container")
+    struct KeyedContainer {
+        @Test("Checks when key is part of Container", arguments: [
+            (GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137)))
+        ])
+        func contains(_ container: GeneratorDecoder.KeyedContainer<StubKey>) async throws {
+            #expect(container.contains(.init()))
+        }
+        
+        @Test("Decodes Key", arguments: [
+            (GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.KeyedContainer<StubKey>, outcome: UInt64) async throws {
+            let key = #require(StubKey(intValue: 22))
+            let result = #require(container.decode(Int.self, forKey: key))
+            #expect(result == outcome)
+        }
+        
+        @Test("Decodes Nil Value", arguments: [
+            (GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137)), true)
+        ])
+        func decodeNil(_ container: GeneratorDecoder.KeyedContainer<StubKey>, outcome: Bool) async throws {
+            let key = #require(StubKey(intValue: 22))
+            let value = try container.decodeNil(forKey: key)
+            #expect(value == outcome)
+        }
+        
+        @Test("Creates Nested Container", arguments: [
+            (GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137)))
+        ])
+        func nestedContainer(_ container: GeneratorDecoder.KeyedContainer<StubKey>) async throws {
+            let key = StubKey()
+            let nestedContainer = try container.nestedContainer(keyedBy: StubKey.self, forKey: key)
+            #expect(nestedContainer.contains(key))
+        }
+        
+        @Test("Creates Nested Unkeyed Container", arguments: [
+            (GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137)))
+        ])
+        func nestedUnkeyedContainer(_ container: GeneratorDecoder.KeyedContainer<StubKey>) async throws {
+            let nestedContainer = #require(container.nestedUnkeyedContainer(forKey: .init()) as? GeneratorDecoder.UnkeyedContainer)
+            #expect(nestedContainer.dataGenerator.run() == container.dataGenerator.run())
+        }
+        
+        @Test("Creates Super Decoder", arguments: [
+            (GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137)))
+        ])
+        func superDecoder(_ container: GeneratorDecoder.KeyedContainer<StubKey>) async throws {
+            let decoder = #require(container.superDecoder() as? GeneratorDecoder)
+            #expect(container.dataGenerator.run() == decoder.dataGenerator.run())
+        }
+        
+        @Test("Creates Super Decoder for Key", arguments: [
+            (StubKey(), GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137)))
+        ])
+        func superDecoder(key: StubKey, container: GeneratorDecoder.KeyedContainer<StubKey>) async throws {
+            let decoder = #require(container.superDecoder(forKey: key) as? GeneratorDecoder)
+            #expect(container.dataGenerator.run() == decoder.dataGenerator.run())
+        }
+    }
+    
+    // MARK: GeneratorDecoder.SingleValueContainer
+    @Suite("Single Value Container")
+    struct SingleValueContainer {
+        func decode<D: Decodable & Equatable>(
+            _ container: GeneratorDecoder.SingleValueContainer,
+            outcome: D,
+            type: D.Type = D.self
+        ) async throws {
+            let value = #require(container.decode(type))
+            #expect(value == outcome)
+        }
 
-        let container = try? decoder.container(keyedBy: StubKey.self)
-        
-        XCTAssertNotNil(container)
-    }
-    
-    func test_unkeyedContainer_createsUnkeyedContainer() {
-        let decoder = GeneratorDecoder(dataGenerator: .always(137))
+        @Test("Decode Nil Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), true)
+        ])
+        func decodeNil(_ container: GeneratorDecoder.SingleValueContainer, outcome: Bool) async throws {
+            let value = container.decodeNil()
+            #expect(value == outcome)
+        }
 
-        let container = try? decoder.unkeyedContainer() as? GeneratorDecoder.UnkeyedContainer
+        @Test("Decodes Optional Bool Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), true)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Bool) async throws {
+            try await decode(container, outcome: outcome, type: Bool.self)
+        }
         
-        XCTAssertEqual(container?.dataGenerator.run(), 137)
+        @Test("Decodes Optional String Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), "137")
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: String) async throws {
+            try await decode(container, outcome: outcome, type: String.self)
+        }
+        
+        @Test("Decodes Optional Double Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137.0)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Double) async throws {
+            try await decode(container, outcome: outcome, type: Double.self)
+        }
+        
+        @Test("Decodes Optional Float Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137.0)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Float) async throws {
+            try await decode(container, outcome: outcome, type: Float.self)
+        }
+        
+        @Test("Decodes Optional Int Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int) async throws {
+            try await decode(container, outcome: outcome, type: Int.self)
+        }
+        
+        @Test("Decodes Optional Int8 Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 100 &+ 37)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int8) async throws {
+            try await decode(container, outcome: outcome, type: Int8.self)
+        }
+        
+        @Test("Decodes Optional Int16 Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int16) async throws {
+            try await decode(container, outcome: outcome, type: Int16.self)
+        }
+        
+        @Test("Decodes Optional Int32 Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int32) async throws {
+            try await decode(container, outcome: outcome, type: Int32.self)
+        }
+        
+        @Test("Decodes Optional Int64 Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int64) async throws {
+            try await decode(container, outcome: outcome, type: Int64.self)
+        }
+        
+        @Test("Decodes Optional UInt Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt) async throws {
+            try await decode(container, outcome: outcome, type: UInt.self)
+        }
+        
+        @Test("Decodes Optional UInt8 Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt8) async throws {
+            try await decode(container, outcome: outcome, type: UInt8.self)
+        }
+        
+        @Test("Decodes Optional UInt16 Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt16) async throws {
+            try await decode(container, outcome: outcome, type: UInt16.self)
+        }
+        
+        @Test("Decodes Optional UInt32 Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt32) async throws {
+            try await decode(container, outcome: outcome, type: UInt32.self)
+        }
+        
+        @Test("Decodes Optional UInt64 Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt64) async throws {
+            try await decode(container, outcome: outcome, type: UInt64.self)
+        }
+        
+        @Test("Decodes Optional Generic Value", arguments: [
+            (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), Date(from: GeneratorDecoder(dataGenerator: .always(137))), Date.self)
+        ])
+        func decodeAny(_ container: GeneratorDecoder.SingleValueContainer, outcome: Date, type: Date.Type) async throws {
+            try await decode(container, outcome: outcome, type: type)
+        }
     }
     
-    func test_singleValueContainer_createsDecodingContainer() {
-        let decoder = GeneratorDecoder(dataGenerator: .always(137))
-
-        let container = try? decoder.singleValueContainer() as? GeneratorDecoder.SingleValueContainer
+    @Suite("Unkeyed Container")
+    struct UnkeyedContainer {
+        func decode<D: Decodable & Equatable>(
+            _ container: inout GeneratorDecoder.UnkeyedContainer,
+            outcome: D,
+            type: D.Type = D.self
+        ) async throws {
+            #expect(container.isAtEnd == false && container.currentIndex == 0)
+            let value = #require(container.decode(type))
+            #expect(value == outcome)
+            #expect(container.isAtEnd && container.currentIndex == 1)
+        }
         
-        XCTAssertEqual(container?.dataGenerator.run(), 137)
-    }
-    
-    // MARK: KeyedContainer
-    func test_contains_checksWhenKeyIsPartOfContainer() {
-        let container = GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137))
+        @Test("Decodes Value and Updates Index", arguments: [
+            (GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1), 137)
+        ])
+        func decode(_ container: GeneratorDecoder.UnkeyedContainer, outcome: Int) async throws {
+            var c = container
+            #expect(c.isAtEnd == false && c.currentIndex == 0)
+            let value = #require(c.decode(Int.self))
+            #expect(value == outcome)
+            #expect(c.isAtEnd && c.currentIndex == 1)
+        }
         
-        XCTAssertTrue(container.contains(.init()))
-    }
-    
-    func test_decode_decodesKey() {
-        let container = GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137))
+        @Test("Decodes Optional Value", arguments: [
+            (GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1), false)
+        ])
+        func decodeNil(_ container: GeneratorDecoder.UnkeyedContainer, outcome: Bool, type: Any) async throws {
+            var c = container
+            #expect(c.isAtEnd == false && c.currentIndex == 0)
+            let value = try c.decodeNil()
+            #expect(value == outcome)
+            #expect(c.isAtEnd && c.currentIndex == 1)
+        }
         
-        let value = try? container.decode(Int.self, forKey: .init(intValue: 22)!)
+        @Test("Creates Nested Container", arguments: [
+            (GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1), 137, Int.self)
+        ])
+        func nestedContainer(_ container: GeneratorDecoder.UnkeyedContainer, outcome: StubKey) async throws {
+            var c = container
+            #expect(c.isAtEnd == false && c.currentIndex == 0)
+            _ = #require(c.nestedContainer(keyedBy: StubKey.self))
+            #expect(c.isAtEnd && c.currentIndex == 1)
+        }
         
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decodeNil_decodesNilValue() {
-        let container = GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137))
+        @Test("Creates Unkeyed Container", arguments: [
+            (GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1), 137)
+        ])
+        func nestedUnkeyedContainer(_ container: GeneratorDecoder.UnkeyedContainer, outcome: UInt64) async throws {
+            var c = container
+            #expect(c.isAtEnd == false && c.currentIndex == 0)
+            let value = #require(c.nestedUnkeyedContainer() as? GeneratorDecoder.UnkeyedContainer)
+            #expect(value.dataGenerator.run() == outcome)
+            #expect(c.isAtEnd && c.currentIndex == 1)
+        }
         
-        let value = try? container.decodeNil(forKey: .init(stringValue: "hi")!)
-        
-        XCTAssert(value == true)
-    }
-    
-    func test_nestedContainer_createsContainer() {
-        let container = GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137))
-        
-        let nestedContainer = try? container.nestedContainer(keyedBy: StubKey.self, forKey: .init())
-        
-        XCTAssertNotNil(nestedContainer)
-    }
-    
-    func test_nestedUnkeyedContainer_createsContainer() {
-        let container = GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137))
-        
-        let nestedContainer = try? container.nestedUnkeyedContainer(forKey: .init()) as? GeneratorDecoder.UnkeyedContainer
-        
-        XCTAssertEqual(container.dataGenerator.run(), nestedContainer?.dataGenerator.run())
-    }
-    
-    func test_superDecoder_createsDecoder() {
-        let container = GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137))
-        
-        let decoder = try? container.superDecoder() as? GeneratorDecoder
-        
-        XCTAssertEqual(container.dataGenerator.run(), decoder?.dataGenerator.run())
-    }
-    
-    func test_superDecoder_key_createsDecoder() {
-        let container = GeneratorDecoder.KeyedContainer<StubKey>(dataGenerator: .always(137))
-        
-        let decoder = try? container.superDecoder(forKey: .init()) as? GeneratorDecoder
-        
-        XCTAssertEqual(container.dataGenerator.run(), decoder?.dataGenerator.run())
-    }
-    
-    // MARK: Single Value Container
-    func test_decodeNil_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = container.decodeNil()
-        
-        XCTAssertTrue(value)
-    }
-    
-    func test_decode_bool_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Bool.self)
-        
-        XCTAssert(value == true)
-    }
-    
-    func test_decode_string_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(String.self)
-        
-        XCTAssertEqual(value, "137")
-    }
-    
-    func test_decode_double_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Double.self)
-        
-        XCTAssertEqual(value, 137.0)
-    }
-    
-    func test_decode_float_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Float.self)
-        
-        XCTAssertEqual(value, 137.0)
-    }
-    
-    func test_decode_int_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Int.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_int8_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Int8.self)
-        
-        XCTAssertEqual(value, 100 &+ 37)
-    }
-    
-    func test_decode_int16_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Int16.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_int32_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Int32.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_int64_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Int64.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_uint_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(UInt.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_uint8_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(UInt8.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_uint16_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(UInt16.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_uint32_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(UInt32.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_uint64_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(UInt64.self)
-        
-        XCTAssertEqual(value, 137)
-    }
-    
-    func test_decode_generics_decodesOptionalValue() {
-        let container = GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137))
-        
-        let value = try? container.decode(Date.self)
-        
-        let date = try? Date(from: GeneratorDecoder(dataGenerator: .always(137)))
-        
-        XCTAssertEqual(value, date)
-    }
-    
-    // MARK: UnkeyedContainer
-    func test_decode_decodesValueAndUpdatesIndex() {
-        var container = GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1)
-        
-        XCTAssertFalse(container.isAtEnd)
-        
-        let value = try? container.decode(Int.self)
-        
-        XCTAssertEqual(value, 137)
-        XCTAssertEqual(container.currentIndex, 1)
-        XCTAssertTrue(container.isAtEnd)
-    }
-    
-    func test_unkeyed_decodeNil_decodesOptionalValue() {
-        var container = GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1)
-        
-        let value = try? container.decodeNil()
-        
-        XCTAssert(value == true)
-    }
-    
-    func test_unkeyed_nestedContainer_createsNestedContainer() {
-        var container = GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1)
-        
-        let nestedContainer = try? container.nestedContainer(keyedBy: StubKey.self)
-        
-        XCTAssertNotNil(nestedContainer)
-    }
-    
-    func test_unkeyed_nestedUnkeyedContainer_createsUnkeyedContainer() {
-        var container = GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1)
-        
-        let nestedContainer = try? container.nestedUnkeyedContainer() as? GeneratorDecoder.UnkeyedContainer
-        
-        XCTAssertEqual(container.dataGenerator.run(), nestedContainer?.dataGenerator.run())
-    }
-    
-    func test_unkeyed_superDecoder_createsDecoder() {
-        var container = GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1)
-        
-        let decoder = try? container.superDecoder() as? GeneratorDecoder
-        
-        XCTAssertEqual(container.dataGenerator.run(), decoder?.dataGenerator.run())
+        @Test("Creates Decoder", arguments: [
+            (GeneratorDecoder.UnkeyedContainer(dataGenerator: .always(137), count: 1), 137)
+        ])
+        func superDecoder(_ container: GeneratorDecoder.UnkeyedContainer, outcome: Int) async throws {
+            var c = container
+            #expect(c.isAtEnd == false && c.currentIndex == 0)
+            let value = #require(c.superDecoder() as? GeneratorDecoder)
+            #expect(value.dataGenerator.run() == outcome)
+            #expect(c.isAtEnd && c.currentIndex == 1)
+        }
     }
 }

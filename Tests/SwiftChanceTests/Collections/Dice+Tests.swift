@@ -5,37 +5,32 @@
 //  Created by Martônio Júnior on 06/11/23.
 //
 
-import XCTest
-import Gen
+import Testing
+@preconcurrency import Gen
 @testable import SwiftChance
 
-final class Dice_Tests: XCTestCase {
-    // MARK: Parameters
-    let sut: Dice = [2,4,5,8,9]
-    
-    // MARK: Test Cases
-    func test_d_createsDiceFromOneToN() {
-        let value = Int.random(in: 1...30)
-        let dice: Dice = .d(value)
-
-        for i in 1...value {
-            XCTAssertTrue(dice.contains(i))
-        }
+struct DiceTests {
+    @Test("Creates Dice from One to N", arguments: [
+        (4, [1,2,3,4])
+    ])
+    func d(sides: Int, outcome: [Int]) async throws {
+        let dice: Dice = .d(sides)
+        #expect(dice == outcome)
     }
     
-    func test_roll_dice_createsGeneratorForDice() {
-        let generator: Gen<[Int]> = .roll(.always(500), dice: sut)
-
-        XCTAssertTrue(generator.run().reduce(true, {
-            $0 && (sut.contains($1))
-        }))
+    @Test("Creates Gen simulating Dice", arguments: [
+        (Gen<Int>.always(50), 7)
+    ])
+    func roll(generator: Gen<Int>, d: Int) async throws {
+        let generator: Gen<[Int]> = .roll(generator, d: d)
+        #expect(generator.run().reduce(true) { $0 && (1...d).contains($1) })
     }
     
-    func test_roll_d_createsGeneratorSimulatingDice() {
-        let generator: Gen<[Int]> = .roll(.always(500), d: 7)
-
-        XCTAssertTrue(generator.run().reduce(true, {
-            $0 && ((1...7).contains($1))
-        }))
+    @Test("Creates Gen for Dice", arguments: [
+        (Gen<Int>.always(50), [2,3,4,5,7])
+    ])
+    func roll(generator: Gen<Int>, dice: Dice) async throws {
+        let generator: Gen<[Int]> = .roll(generator, dice: dice)
+        #expect(generator.run().reduce(true) { $0 && dice.contains($1) })
     }
 }
