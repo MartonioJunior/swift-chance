@@ -9,7 +9,6 @@ let chanceDependencies: [Target.Dependency] = [
 
 let settings: [SwiftSetting] = [
     .enableUpcomingFeature("ExistentialAny"),
-    .enableUpcomingFeature("GlobalActorIsolatedTypesUsability"),
     .enableUpcomingFeature("FullTypedThrows"),
     .enableUpcomingFeature("InternalImportsByDefault")
 ]
@@ -41,7 +40,8 @@ let package = Package(
         ),
         .testTarget(
             name: "SwiftChanceTests",
-            dependencies: ["SwiftChance"]),
+            dependencies: ["SwiftChance"]
+        ),
     ],
-    swiftLanguageVersions: [.v6]
+    swiftLanguageModes: [.v6]
 )
