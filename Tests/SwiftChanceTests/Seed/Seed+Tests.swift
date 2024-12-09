@@ -5,50 +5,56 @@
 //  Created by Martônio Júnior on 21/03/24.
 //
 
-import XCTest
+import Testing
 @testable import SwiftChance
 
-final class Seed_Tests: XCTestCase {
-    // MARK: Test Cases
-    func test_rawPosition_transformsIndexArrayIntoSingleValue() {
-        let seed = Seed(value: 24, position: [4,0,0,2,8,9,2,2])
-        
-        XCTAssertEqual(seed.rawPosition, 1800936799)
+struct SeedTests {
+    @Test("Transforms Index Array Into Single Value", arguments: [
+        (Seed(value: 24, position: [4,0,0,2,8,9,2,2]), UInt(1800936799))
+    ])
+    func rawPosition(seed: Seed, outcome: UInt) async throws {
+        #expect(seed.rawPosition == outcome)
     }
     
-    func test_init_createsNewSeedWithIndex()
-    {
-        let seed = Seed(value: 13, position: [2,3,1])
-        
-        XCTAssertEqual(seed.value, 13)
-        XCTAssertEqual(seed.position, [2,3,1])
+    @Test("Creates New Seed with Index", arguments: [
+        (Seed(value: 13, position: [2,3,1]), UInt(13), [2,3,1])
+    ])
+    func `init`(seed: Seed, value: UInt, position: [UInt]) async throws {
+        #expect(seed.value == value)
+        #expect(seed.position == position)
     }
     
-    func test_seed1D_initializesOneDimensionalSeed() {
+    @Test("Initializes One Dimensional Seed", arguments: [
+        (Seed.seed1D(12), UInt(12), [0])
+    ])
+    func seed1D(seed: Seed, value: UInt, position: [UInt]) async throws {
         let seed: Seed = .seed1D(12)
         
-        XCTAssertEqual(seed.value, 12)
-        XCTAssertEqual(seed.position, [0])
+        #expect(seed.value == value)
+        #expect(seed.position == position)
     }
-
-    func test_seed2D_initializesTwoDimensionalSeed() {
-        let seed: Seed = .seed2D(4)
-        
-        XCTAssertEqual(seed.value, 4)
-        XCTAssertEqual(seed.position, [0,0])
+    
+    @Test("Initializes Two Dimensional Seed", arguments: [
+        (Seed.seed2D(4), UInt(4), [0,0])
+    ])
+    func seed2D(seed: Seed, value: UInt, position: [UInt]) async throws {
+        #expect(seed.value == value)
+        #expect(seed.position == position)
     }
-
-    func test_seed3D_initializesThreeDimensionalSeed() {
-        let seed: Seed = .seed3D(98)
-        
-        XCTAssertEqual(seed.value, 98)
-        XCTAssertEqual(seed.position, [0,0,0])
+    
+    @Test("Initializes Three Dimensional Seed", arguments: [
+        (Seed.seed3D(98), UInt(98), [0,0,0])
+    ])
+    func seed3D(seed: Seed, value: UInt, position: [UInt]) async throws {
+        #expect(seed.value == value)
+        #expect(seed.position == position)
     }
-
-    func test_seed4D_initializesFourDimensionalSeed() {
-        let seed: Seed = .seed4D(9)
-        
-        XCTAssertEqual(seed.value, 9)
-        XCTAssertEqual(seed.position, [0,0,0,0])
+    
+    @Test("Initializes Four Dimensional Seed", arguments: [
+        (Seed.seed4D(9), UInt(9), [0,0,0,0])
+    ])
+    func seed4D(seed: Seed, value: UInt, position: [UInt]) async throws {
+        #expect(seed.value == value)
+        #expect(seed.position == position)
     }
 }
