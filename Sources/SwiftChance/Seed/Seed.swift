@@ -52,7 +52,7 @@ public struct Seed {
     ///   - seed: fixed reference value for the seed
     ///   - position: seed's starting position
     /// - Returns: a new `Seed` instance
-    static func seed1D(seed: UInt, position: UInt = 0) -> Seed {
+    static func seed1D(_ seed: UInt, position: UInt = 0) -> Seed {
         .init(value: seed, position: [position])
     }
     
@@ -62,7 +62,7 @@ public struct Seed {
     ///   - seed: fixed reference value for the seed
     ///   - position: seed's starting position
     /// - Returns: a new `Seed` instance
-    static func seed2D(seed: UInt, position: SIMD2<UInt> = [0,0]) -> Seed {
+    static func seed2D(_ seed: UInt, position: SIMD2<UInt> = [0,0]) -> Seed {
         .init(value: seed, position: [position.x, position.y])
     }
     
@@ -72,7 +72,7 @@ public struct Seed {
     ///   - seed: fixed reference value for the seed
     ///   - position: seed's starting position
     /// - Returns: a new `Seed` instance
-    static func seed3D(seed: UInt, position: SIMD3<UInt> = [0,0,0]) -> Seed {
+    static func seed3D(_ seed: UInt, position: SIMD3<UInt> = [0,0,0]) -> Seed {
         .init(value: seed, position: [position.x, position.y, position.z])
     }
     
@@ -82,7 +82,7 @@ public struct Seed {
     ///   - seed: fixed reference value for the seed
     ///   - position: seed's starting position
     /// - Returns: a new `Seed` instance
-    static func seed4D(seed: UInt, position: SIMD4<UInt> = [0,0,0,0]) -> Seed {
+    static func seed4D(_ seed: UInt, position: SIMD4<UInt> = [0,0,0,0]) -> Seed {
         .init(value: seed, position: [position.x, position.y, position.z,position.w])
     }
 }

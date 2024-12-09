@@ -20,7 +20,7 @@ final class SeedRandomNumberGenerator_Tests: XCTestCase {
     }
     // MARK: Test Cases
     func test_init_createsGeneratorBasedOnFormulaAndSeed() {
-        let seed: Seed = .seed1D(seed: 24)
+        let seed: Seed = .seed1D(24)
         let rng = SeedRandomNumberGenerator(seed)
         
         XCTAssertEqual(rng.seed.value, seed.value)
@@ -29,7 +29,7 @@ final class SeedRandomNumberGenerator_Tests: XCTestCase {
     }
     
     func test_advanceState_changesSeedState() {
-        var rng = SeedRandomNumberGenerator(.seed3D(seed: 67))
+        var rng = SeedRandomNumberGenerator(.seed3D(67))
         rng.advanceState()
         
         XCTAssertEqual(rng.seed.position, [1,0,0])
@@ -37,14 +37,14 @@ final class SeedRandomNumberGenerator_Tests: XCTestCase {
     
     func test_peek_revealsNextValue() {
         let formula: SeedRandomNumberGenerator.Formula = { seed,_ in 9 }
-        let rng = SeedRandomNumberGenerator(.seed1D(seed: 67), formula: formula)
+        let rng = SeedRandomNumberGenerator(.seed1D(67), formula: formula)
         
         XCTAssertEqual(rng.peek(), 9)
     }
     // MARK: SeedRandomNumberGenerator: RandomNumberGenerator
     func test_next_returnsNextValueAdvancingState() {
         let formula: SeedRandomNumberGenerator.Formula = { seed,_ in 9 }
-        var rng = SeedRandomNumberGenerator(.seed2D(seed: 67), formula: formula)
+        var rng = SeedRandomNumberGenerator(.seed2D(67), formula: formula)
         let result = rng.next()
         
         XCTAssertEqual(result, 9)
@@ -53,14 +53,14 @@ final class SeedRandomNumberGenerator_Tests: XCTestCase {
     
     // MARK: Algorithms
     func test_squirrelThree_generatesUniqueValues() {
-        var rng = SeedRandomNumberGenerator(.seed3D(seed: 67), formula: SeedRNG.squirrelThree)
+        var rng = SeedRandomNumberGenerator(.seed3D(67), formula: SeedRNG.squirrelThree)
         let generator: Gen<UInt64> = .f { rng.next() }
         let score = scoreRNG(generator)
         XCTAssertGreaterThanOrEqual(score, 0.8)
     }
     
     func test_squirrelFive_generatesUniqueValues() {
-        var rng = SeedRandomNumberGenerator(.seed3D(seed: 67), formula: SeedRNG.squirrelFive)
+        var rng = SeedRandomNumberGenerator(.seed3D(67), formula: SeedRNG.squirrelFive)
         let generator: Gen<UInt64> = .f { rng.next() }
         let score = scoreRNG(generator)
         XCTAssertGreaterThanOrEqual(score, 0.8)
