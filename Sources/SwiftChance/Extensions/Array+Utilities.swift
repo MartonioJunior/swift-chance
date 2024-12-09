@@ -24,9 +24,11 @@ public extension Array {
     /// - Returns: an array with all removed elements
     mutating func removeRandom(count: Gen<Int> = .always(1), indexGenerator: Gen<Index>) -> [Element] {
         return indexGenerator.array(of: count).run().compactMap {
-            guard indices.contains($0) else { return nil }
-            
-            return remove(at: $0)
+            let index = $0 % (indices.upperBound + 1)
+
+            guard indices.contains(index) else { return nil }
+
+            return remove(at: index)
         }
     }
 }

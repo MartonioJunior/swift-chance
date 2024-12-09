@@ -5,30 +5,27 @@
 //  Created by Martônio Júnior on 20/02/24.
 //
 
-import XCTest
+import Testing
+@preconcurrency import Gen
+@testable import SwiftChance
 
-final class Collection_Tests: XCTestCase {
-    // MARK: Parameters
-    let sut = [1,2,3,4,5]
-    
-    // MARK: Test Cases
-    func test_elementGenerator_createsGeneratorForElements() {
-        let generator = sut.elementGenerator
+struct CollectionTests {
+    @Test("Creates Generator for Elements", arguments: [
+        ([1,2,3,4,5])
+    ])
+    func elementGenerator(collection: [Int]) async throws {
+        let generator = collection.elementGenerator
         
-        let result = generator.array(of: .always(500)).run().reduce(true) {
-            $0 && sut.contains($1)
-        }
-
-        XCTAssertTrue(result)
+        #expect(generator.array(of: .always(500)).run().allSatisfy(collection.contains))
     }
     
-    func test_indexGenerator_createsGeneratorForIndices() {
-        let generator = sut.indexGenerator
+    @Test("Creates Generator for Indices", arguments: [
+        ([1,2,3,4,5])
+    ])
+    func indexGenerator(collection: [Int]) async throws {
+        let generator = collection.indexGenerator
+        let indices = collection.indices
         
-        let result = generator.array(of: .always(500)).run().reduce(true) {
-            $0 && sut.indices.contains($1)
-        }
-
-        XCTAssertTrue(result)
+        #expect(generator.array(of: .always(500)).run().allSatisfy(indices.contains))
     }
 }
