@@ -5,27 +5,28 @@
 //  Created by Martônio Júnior on 20/02/24.
 //
 
-import XCTest
-@testable import Gen
+import Testing
+@preconcurrency import Gen
 @testable import SwiftChance
 
-final class RandomNumberGenerator_Tests: XCTestCase {
-    // MARK: Parameters
-    let sut = SystemRandomNumberGenerator()
-    
-    // MARK: TestCases
-    func test_erasedToAnyRNG_returnsTypeErasedObject() {
-        let anyRNG = sut.erasedToAnyRNG()
+struct RandomNumberGeneratorTests {
+    @Test("Returns Type-Erased Object", arguments: [
+        SeedRNG(.seed1D(1))
+    ])
+    func erasedToAnyRNG(rng: SeedRNG) async throws {
+        var rngCopy = rng
+        var anyRNG = rng.erasedToAnyRNG()
         
-        XCTAssertTrue(anyRNG is AnyRandomNumberGenerator)
+        #expect(rngCopy.next() == anyRNG.next())
     }
     
-    func test_run_performsOperationWithTypeErasure() {
-        var copy = sut
-        let closure: (inout AnyRandomNumberGenerator) -> Int = { rng in
-            5
-        }
+    @Test("Performs Operation with Type Erasure", arguments: [
+        (SeedRNG(.seed1D(1)), 5)
+    ])
+    func run(rng: SeedRNG, outcome: Int) async throws {
+        var rngCopy = rng
+        let closure: (inout AnyRandomNumberGenerator) -> Int = { rng in outcome }
         
-        XCTAssertEqual(copy.run(closure), 5)
+        #expect(rngCopy.run(closure) == outcome)
     }
 }
