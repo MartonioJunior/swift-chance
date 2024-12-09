@@ -5,64 +5,70 @@
 //  Created by Martônio Júnior on 21/03/24.
 //
 
-import XCTest
-import Gen
+import Testing
+@preconcurrency import Gen
 @testable import SwiftChance
 
-final class SeedRandomNumberGenerator_Tests: XCTestCase {
-    // MARK: Test Utilities
-    func scoreRNG(_ generator: Gen<UInt64>) -> Double {
-        let numberOfAttempts = 1000
+struct SeedRandomNumberGeneratorTests {
+    @Test("Creates Generator Based on Formula and Seed", arguments: [
+        (Seed.seed1D(24), SeedRNG.squirrelFive)
+    ])
+    func `init`(seed: Seed, formula: @escaping SeedRNG.Formula) async throws {
+        let rng = SeedRandomNumberGenerator(seed, formula: formula)
         
-        let result = generator.set(ofAtMost: .always(1000)).run()
-        
-        return Double(result.count) / Double(numberOfAttempts)
-    }
-    // MARK: Test Cases
-    func test_init_createsGeneratorBasedOnFormulaAndSeed() {
-        let seed: Seed = .seed1D(24)
-        let rng = SeedRandomNumberGenerator(seed)
-        
-        XCTAssertEqual(rng.seed.value, seed.value)
-        XCTAssertEqual(rng.seed.position, seed.position)
-        XCTAssertEqual(rng.formula(2,3), SeedRNG.squirrelFive(seed: 2, position: 3))
+        #expect(rng.seed == seed)
+        #expect(rng.formula(1,2) == formula(1,2))
     }
     
-    func test_advanceState_changesSeedState() {
-        var rng = SeedRandomNumberGenerator(.seed3D(67))
+    @Test("Changes Seed State", arguments: [
+        (SeedRandomNumberGenerator(.seed3D(67)), [1,0,0])
+    ])
+    func advanceState(seedRNG: SeedRandomNumberGenerator, expectedPosition: [UInt]) async throws {
+        var rng = seedRNG
         rng.advanceState()
-        
-        XCTAssertEqual(rng.seed.position, [1,0,0])
+        #expect(rng.seed.position == expectedPosition)
     }
     
-    func test_peek_revealsNextValue() {
-        let formula: SeedRandomNumberGenerator.Formula = { seed,_ in 9 }
-        let rng = SeedRandomNumberGenerator(.seed1D(67), formula: formula)
-        
-        XCTAssertEqual(rng.peek(), 9)
-    }
-    // MARK: SeedRandomNumberGenerator: RandomNumberGenerator
-    func test_next_returnsNextValueAdvancingState() {
-        let formula: SeedRandomNumberGenerator.Formula = { seed,_ in 9 }
-        var rng = SeedRandomNumberGenerator(.seed2D(67), formula: formula)
-        let result = rng.next()
-        
-        XCTAssertEqual(result, 9)
-        XCTAssertEqual(rng.seed.position, [1,0])
+    @Test("Reveals next value", arguments: [
+        (Seed.seed1D(67), 9)
+    ])
+    func peek(seed: Seed, outcome: Int) async throws {
+        let rng = SeedRandomNumberGenerator(seed, formula: { _,_ in UInt64(outcome) })
+        #expect(rng.peek() == outcome)
     }
     
-    // MARK: Algorithms
-    func test_squirrelThree_generatesUniqueValues() {
-        var rng = SeedRandomNumberGenerator(.seed3D(67), formula: SeedRNG.squirrelThree)
-        let generator: Gen<UInt64> = .f { rng.next() }
-        let score = scoreRNG(generator)
-        XCTAssertGreaterThanOrEqual(score, 0.8)
+    @Suite("RandomNumberGenerator conformance")
+    struct RandomNumberGenerator {
+        @Test("Returns next value advancing state", arguments: [
+            (Seed.seed2D(67), 9, [1,0])
+        ])
+        func next(seed: Seed, outcome: Int, expectedPosition: [UInt]) async throws {
+            var rng = SeedRandomNumberGenerator(seed, formula: { _,_ in UInt64(outcome) })
+            let result = rng.next()
+            #expect(result == outcome)
+            #expect(rng.seed.position == expectedPosition)
+        }
     }
     
-    func test_squirrelFive_generatesUniqueValues() {
-        var rng = SeedRandomNumberGenerator(.seed3D(67), formula: SeedRNG.squirrelFive)
-        let generator: Gen<UInt64> = .f { rng.next() }
-        let score = scoreRNG(generator)
-        XCTAssertGreaterThanOrEqual(score, 0.8)
+    @Suite("Formulas Implemented")
+    struct Formula {
+        func score(_ generator: Gen<UInt64>) -> Double {
+            let numberOfAttempts = 1000
+            
+            let result = generator.set(ofAtMost: .always(1000)).run()
+            
+            return Double(result.count) / Double(numberOfAttempts)
+        }
+        
+        @Test("Must have a 80% score or above", arguments: [
+            (Seed.seed3D(67), SeedRNG.squirrelThree, 0.8),
+            (Seed.seed3D(223), SeedRNG.squirrelFive, 0.8)
+        ])
+        func firstGuideline(seed: Seed, formula: @escaping SeedRNG.Formula, expectedScore: Double) async throws {
+            var rng = SeedRandomNumberGenerator(seed, formula: formula)
+            let generator: Gen<UInt64> = .f { rng.next() }
+            let score = score(generator)
+            #expect(score >= expectedScore)
+        }
     }
 }
