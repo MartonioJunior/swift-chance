@@ -86,3 +86,6 @@ public struct Seed {
         .init(value: seed, position: [position.x, position.y, position.z,position.w])
     }
 }
+
+// MARK: Sendable
+extension Seed: Sendable {}
