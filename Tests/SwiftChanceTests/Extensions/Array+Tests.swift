@@ -5,38 +5,40 @@
 //  Created by Martônio Júnior on 10/02/24.
 //
 
-import XCTest
-import Gen
+import Testing
+@preconcurrency import Gen
+@testable import SwiftChance
 
-final class Array_Tests: XCTestCase {
-    // MARK: Parameters
-    var sut = [1,2,3,4]
-    
-    // MARK: Test Cases
-    func test_removeRandom_removesManyElementsAtRandom() {
-        var copy = sut
-        let value = copy.removeRandom()
-        
-        XCTAssertTrue(sut.contains(value))
-        XCTAssertFalse(copy.contains(value))
-        XCTAssertEqual(copy.count, 3)
+struct ArrayTests {
+    @Test("Removes Many Elements At Random", arguments: [
+        ([1,2,3,5], 1, 1),
+        ([4,5,2,1,9,6], 3, 3),
+        ([2,3], 4, 2),
+        ([], 1, 0)
+    ])
+    func removeRandom(array: [Int], count: Int, expectedRemoval: Int) async throws {
+        var copy = array
+        let value = copy.removeRandom(count: .always(count))
+
+        #expect(value.allSatisfy(array.contains(_:)))
+        #expect(value.allSatisfy({ !copy.contains($0) }))
+        #expect(array.count - copy.count == expectedRemoval)
     }
     
-    func test_removeRandom_removesElementsWithIndexGenerator() {
-        var copy = sut
-        let indexGenerator = Gen<Int>.always(0)
-        let value = copy.removeRandom(indexGenerator: indexGenerator)
+    @Test("Removes Elements at Random with Index Generator", arguments: [
+        ([1,2,3,5], 1, 0, [1]),
+        ([3,5,6,7], 2, 1, [5,6]),
+        ([34,56], 5, 0, [34,56]),
+        ([22,44], 1, 2, []),
+        ([3,7], 0, 0, []),
+        ([], 1, 0, [])
+    ])
+    func removeRandom(array: [Int], count: Int, index: Int, outcome: [Int]) async throws {
+        var copy = array
+        let value = copy.removeRandom(count: .always(count), indexGenerator: .always(index))
         
-        XCTAssertTrue(sut.contains(value))
-        XCTAssertFalse(copy.contains(value))
-        XCTAssertEqual(copy, [2,3,4])
-    }
-    
-    func test_removeRandom_returnsCollectionWhenAmountHigherThanCount() {
-        _ = sut
-        let result = sut.removeRandom(count: .always(5), indexGenerator: .always(0))
-        
-        XCTAssertTrue(result.allSatisfy((1...4).contains))
-        XCTAssertEqual(0, sut.count)
+        #expect(value == outcome)
+        #expect(array.contains(value))
+        #expect(value.allSatisfy({ !copy.contains($0) }))
     }
 }

@@ -23,7 +23,7 @@ public extension Array {
     ///   - indexGenerator: generator responsible for determining which element should be removed
     /// - Returns: an array with all removed elements
     mutating func removeRandom(count: Gen<Int> = .always(1), indexGenerator: Gen<Index>) -> [Element] {
-        return indexGenerator.array(of: .always(count.run())).run().compactMap {
+        return indexGenerator.array(of: count).run().compactMap {
             guard indices.contains($0) else { return nil }
             
             return remove(at: $0)
