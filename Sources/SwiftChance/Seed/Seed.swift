@@ -87,5 +87,8 @@ public struct Seed {
     }
 }
 
+// MARK: Equatable
+extension Seed: Equatable {}
+
 // MARK: Sendable
 extension Seed: Sendable {}
