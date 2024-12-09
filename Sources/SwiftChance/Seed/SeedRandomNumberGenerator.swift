@@ -12,7 +12,7 @@ public typealias SeedRNG = SeedRandomNumberGenerator
 /// Customizable `RandomNumberGenerator` powered by `Seed` and custom formulas
 public struct SeedRandomNumberGenerator {
     /// Equation used to generate random values based on a seed's value and it's raw position
-    public typealias Formula = (UInt, UInt) -> UInt64
+    public typealias Formula = @Sendable (UInt, UInt) -> UInt64
 
     // MARK: Variables
     /// Formula used by this generator
@@ -49,6 +49,9 @@ extension SeedRandomNumberGenerator: RandomNumberGenerator {
         return value
     }
 }
+
+// MARK: Sendable
+extension SeedRandomNumberGenerator: Sendable {}
 
 // MARK: Algorithms
 public extension SeedRandomNumberGenerator {
