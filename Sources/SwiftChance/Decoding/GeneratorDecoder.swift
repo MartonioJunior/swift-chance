@@ -6,8 +6,7 @@
 //
 
 import Foundation
-import Gen
-
+@preconcurrency import Gen
 
 /// Special decoder based on Gen that generates any type in a controllable manner by using a custom data generator (`Gen<UInt64>`)
 ///
@@ -184,3 +183,6 @@ extension GeneratorDecoder {
         }
     }
 }
+
+// MARK: Sendable
+extension GeneratorDecoder: @unchecked Sendable {}
