@@ -167,7 +167,8 @@ extension GeneratorDecoder {
         }
         
         mutating func decodeNil() throws -> Bool {
-            .init(truncating: .init(value: dataGenerator.run()))
+            defer { currentIndex += 1 }
+            return .init(truncating: .init(value: dataGenerator.run()))
         }
         
         mutating func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
