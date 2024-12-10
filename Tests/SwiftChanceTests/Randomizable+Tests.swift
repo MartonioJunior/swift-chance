@@ -5,27 +5,25 @@
 //  Created by Martônio Júnior on 21/03/24.
 //
 
-import XCTest
+import Testing
+@preconcurrency import Gen
 @testable import SwiftChance
 
-// MARK: Stub
-extension Randomizable_Tests {
-    struct Stub: Randomizable {
+struct RandomizableTests {
+    struct Mock: Randomizable {
         var value: Int
         
         mutating func randomize(input: Int) {
-            value = input
+            value = input + value
         }
     }
-}
-
-final class Randomizable_Tests: XCTestCase {
-    // MARK: Test Methods
-    func test_randomize_configuresObjectBasedOnGenerator() {
-        var stub = Stub(value: 25)
-        
-        stub.randomize(using: .always(4))
-        
-        XCTAssertEqual(stub.value, 4)
+    
+    @Test("Configures Object based on Generator", arguments: [
+        (Mock(value: 25), Gen<Mock.Input>.always(4), 29)
+    ])
+    func randomize(stub: Mock, generator: Gen<Mock.Input>, outcome: Mock.Input) async throws {
+        var stub = stub
+        stub.randomize(using: generator)
+        #expect(stub.value == outcome)
     }
 }
