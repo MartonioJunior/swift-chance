@@ -5,30 +5,22 @@
 //  Created by Martônio Júnior on 21/03/24.
 //
 
-import XCTest
-import Gen
+import Testing
+@preconcurrency import Gen
 @testable import SwiftChance
 
-final class FixedWidthInteger_Tests: XCTestCase {
-    // MARK: Test Utilities
-    func testGenerator(_ range: ClosedRange<Int> = Int.min...Int.max) -> (Gen<Int>) -> Bool {
-        {
-            $0.array(of: .always(100)).run().allSatisfy((Int.min...Int.max).contains)
-        }
+struct FixedWidthIntegerTests {
+    @Test("Returns value in representable Range", arguments: [
+        (Gen<Int>.fixedWidthInteger, Int.min...Int.max),
+    ])
+    func evaluateGenerators(gen: Gen<Int>, range: ClosedRange<Int>) async throws {
+        #expect(gen.array(of: .always(100)).run().allSatisfy(range.contains))
     }
     
-    // MARK: Test Cases
-    func test_fixedWidthInteger_returnsValueInRepresentableRange()
-    {
-        let generator: Gen<Int> = .fixedWidthInteger
-
-        XCTAssert(testGenerator()(generator))
-    }
-    
-    func test_random_returnsValueInRepresentableRange()
-    {
-        let generator: Gen<Int> = .f { .random() }
-        
-        XCTAssert(testGenerator()(generator))
+    @Test("Returns valid fixed-width Integer value")
+    func random() async throws {
+        let gen: Gen<Int> = .f { .random() }
+        let range = Int.min...Int.max
+        #expect(gen.array(of: .always(100)).run().allSatisfy(range.contains))
     }
 }
