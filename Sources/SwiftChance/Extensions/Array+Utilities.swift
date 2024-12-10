@@ -14,7 +14,9 @@ public extension Array {
     ///     - count: amount of elements to be removed
     /// - Returns: an array with all removed elements
     mutating func removeRandom(count: Gen<Int> = .always(1)) -> [Element] {
-        removeRandom(count: count, indexGenerator: indexGenerator)
+        guard !isEmpty else { return [] }
+
+        return removeRandom(count: count, indexGenerator: indexGenerator)
     }
     
     /// SwiftChance: Removes multiple elements at random using an index generator
