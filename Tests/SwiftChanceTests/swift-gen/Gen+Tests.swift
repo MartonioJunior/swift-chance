@@ -5,49 +5,56 @@
 //  Created by Martônio Júnior on 21/03/24.
 //
 
-import XCTest
-import Gen
+import Testing
+@preconcurrency import Gen
 @testable import SwiftChance
 
-final class Gen_Tests: XCTestCase {
-    // MARK: Test Cases
-    func test_callAsFunction_returnsSameValueAsRun() {
-        let generator: Gen = .always(100)
-        
-        XCTAssertEqual(generator.run(), generator())
+struct GenTests {
+    @Test("Returns same value as run()", arguments: [
+        Gen<Int>.always(100)
+    ])
+    func callAsFunction(gen: Gen<Int>) async throws {
+        #expect(gen.run() == gen())
     }
     
-    func test_callAsFunction_generator_returnsSameValueAsRun() {
-        let generator: Gen = .always(100)
-        var rng = SystemRandomNumberGenerator()
-        
-        XCTAssertEqual(generator.run(using: &rng), generator(using: &rng))
+    @Test("Returns same value as run(&using)", arguments: [
+        (Gen<Int>.always(64), SystemRandomNumberGenerator())
+    ])
+    func callAsFunction(gen: Gen<Int>, rng: SystemRandomNumberGenerator) async throws {
+        var rng = rng
+        #expect(gen.run(using: &rng) == gen(using: &rng))
     }
     
-    func test_f_createsGeneratorWithClosure() {
-        let closure = { 4 }
-        let generator: Gen<Int> = .f(closure)
-
-        XCTAssertEqual(closure(), generator.run())
+    @Test("Creates Generator with closure", arguments: [
+        (4)
+    ])
+    func f(value: Int) async throws {
+        let generator: Gen<Int> = .f { value }
+        #expect(generator.run() == value)
     }
     
-    // MARK: Global Methods
-    func test_zipAll_createsGeneratorByCombiningGenerators() {
-        let generatorA: Gen<Double> = .always(10)
-        let generatorB: Gen<String> = .always("s")
-        
-        let zippedGenerator = zipAll(generatorA, generatorB)
-        
-        let (number, text) = zippedGenerator.run()
-        
-        XCTAssertEqual(number, 10)
-        XCTAssertEqual(text, "s")
+    @Suite("Global Methods")
+    struct Global {
+        @Test("Creates Generator By Combining Generators", arguments: [
+            (Gen<Double>.always(10), Gen<String>.always("s"), (10, "s"))
+        ])
+        func zipAll(a: Gen<Double>, b: Gen<String>, _ outcome: (Double, String)) async throws {
+            let zippedGenerator = SwiftChance.zipAll(a, b)
+            
+            let tuple = zippedGenerator.run()
+            
+            #expect(tuple == outcome)
+        }
     }
     
-    // MARK: Gen: RandomNumberGenerator
-    func test_next_allowsGeneratorToWorkAsRNGSource() {
-        var generator: Gen<UInt64> = .always(60)
-        
-        XCTAssertEqual(generator.next(), 60)
+    @Suite("RandomNumberGenerator conformance")
+    struct RandomNumberGenerator {
+        @Test("Allows Generator to work as RNG source", arguments: [
+            (Gen<UInt64>.always(60), UInt64(60))
+        ])
+        func next(gen: Gen<UInt64>, outcome: UInt64) async throws {
+            var gen = gen
+            #expect(gen.next() == outcome)
+        }
     }
 }
