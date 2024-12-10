@@ -153,98 +153,98 @@ struct GeneratorDecoderTests {
         @Test("Decodes Optional Bool Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), true)
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Bool) async throws {
+        func decodeBool(_ container: GeneratorDecoder.SingleValueContainer, outcome: Bool) async throws {
             try await decodeTest(container, outcome: outcome, type: Bool.self)
         }
         
         @Test("Decodes Optional String Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), "137")
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: String) async throws {
+        func decodeString(_ container: GeneratorDecoder.SingleValueContainer, outcome: String) async throws {
             try await decodeTest(container, outcome: outcome, type: String.self)
         }
         
         @Test("Decodes Optional Double Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137.0)
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Double) async throws {
+        func decodeDouble(_ container: GeneratorDecoder.SingleValueContainer, outcome: Double) async throws {
             try await decodeTest(container, outcome: outcome, type: Double.self)
         }
         
         @Test("Decodes Optional Float Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), Float(137.0))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Float) async throws {
+        func decodeFloat(_ container: GeneratorDecoder.SingleValueContainer, outcome: Float) async throws {
             try await decodeTest(container, outcome: outcome, type: Float.self)
         }
         
         @Test("Decodes Optional Int Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), 137)
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int) async throws {
+        func decodeInt(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int) async throws {
             try await decodeTest(container, outcome: outcome, type: Int.self)
         }
         
         @Test("Decodes Optional Int8 Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(63)), Int8(63))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int8) async throws {
+        func decodeInt8(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int8) async throws {
             try await decodeTest(container, outcome: outcome, type: Int8.self)
         }
         
         @Test("Decodes Optional Int16 Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), Int16(137))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int16) async throws {
+        func decodeInt16(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int16) async throws {
             try await decodeTest(container, outcome: outcome, type: Int16.self)
         }
         
         @Test("Decodes Optional Int32 Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), Int32(137))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int32) async throws {
+        func decodeInt32(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int32) async throws {
             try await decodeTest(container, outcome: outcome, type: Int32.self)
         }
         
         @Test("Decodes Optional Int64 Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), Int64(137))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int64) async throws {
+        func decodeInt64(_ container: GeneratorDecoder.SingleValueContainer, outcome: Int64) async throws {
             try await decodeTest(container, outcome: outcome, type: Int64.self)
         }
         
         @Test("Decodes Optional UInt Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), UInt(137))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt) async throws {
+        func decodeUInt(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt) async throws {
             try await decodeTest(container, outcome: outcome, type: UInt.self)
         }
         
         @Test("Decodes Optional UInt8 Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), UInt8(137))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt8) async throws {
+        func decodeUInt8(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt8) async throws {
             try await decodeTest(container, outcome: outcome, type: UInt8.self)
         }
         
         @Test("Decodes Optional UInt16 Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), UInt16(137))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt16) async throws {
+        func decodeUInt16(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt16) async throws {
             try await decodeTest(container, outcome: outcome, type: UInt16.self)
         }
         
         @Test("Decodes Optional UInt32 Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), UInt32(137))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt32) async throws {
+        func decodeUInt32(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt32) async throws {
             try await decodeTest(container, outcome: outcome, type: UInt32.self)
         }
         
         @Test("Decodes Optional UInt64 Value", arguments: [
             (GeneratorDecoder.SingleValueContainer(dataGenerator: .always(137)), UInt64(137))
         ])
-        func decode(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt64) async throws {
+        func decodeUInt64(_ container: GeneratorDecoder.SingleValueContainer, outcome: UInt64) async throws {
             try await decodeTest(container, outcome: outcome, type: UInt64.self)
         }
         
