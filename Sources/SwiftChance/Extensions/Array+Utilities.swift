@@ -18,7 +18,7 @@ public extension Array {
 
         return removeRandom(count: count, indexGenerator: indexGenerator)
     }
-    
+
     /// SwiftChance: Removes multiple elements at random using an index generator
     /// - Parameters:
     ///   - count: amount of elemens to be removed
