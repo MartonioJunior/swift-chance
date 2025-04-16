@@ -14,7 +14,7 @@ public extension Gen where Value: BinaryFloatingPoint, Value.RawSignificand: Fix
             .random(in: -1_000_000_000...1_000_000_000, using: &$0)
         }
     }
-    
+
     /// Creates a new generator for binary floating numbers between `0...1`
     static var normalBinaryFloatingPoint: Gen {
         .init {

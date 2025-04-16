@@ -13,7 +13,7 @@ public struct Seed {
     ///
     /// Reference positions are defined per-axis in a linear vector
     typealias Index = [UInt]
-    
+
     // MARK: Variables
     /// The seed's value
     ///
@@ -23,10 +23,11 @@ public struct Seed {
     ///
     /// This value works as a mutable reference point for the values generated, changing after every value generated.
     var position: Index
-    
+
     /// Simplified representation of position as a `UInt`
     ///
-    /// `rawPosition` is used to compress all axises of `Index` into a single value that can be used by `SeedRandomNumberGenerator`, independent of how many axises are stored in the seed's state.
+    /// `rawPosition` is used to compress all axises of `Index` into a single value that can be used
+    /// by `SeedRandomNumberGenerator`, independent of how many axises are stored in the seed's state.
     var rawPosition: UInt {
         let multipliers: [UInt] = [1, 198491317, 6542989, 357239]
 
@@ -34,7 +35,7 @@ public struct Seed {
             result &+ multipliers[element.0 % multipliers.count] * element.1
         }
     }
-    
+
     // MARK: Initializers
     /// Creates a new seed state with the specified value and position
     /// - Parameters:
@@ -44,7 +45,7 @@ public struct Seed {
         self.value = value
         self.position = position
     }
-    
+
     // MARK: Static Methods
     /// Creates a new unidimensional seed
     ///
@@ -55,35 +56,35 @@ public struct Seed {
     static func seed1D(_ seed: UInt, position: UInt = 0) -> Seed {
         .init(value: seed, position: [position])
     }
-    
+
     /// Creates a new bidimensional seed
     ///
     /// - Parameters:
     ///   - seed: fixed reference value for the seed
     ///   - position: seed's starting position
     /// - Returns: a new `Seed` instance
-    static func seed2D(_ seed: UInt, position: SIMD2<UInt> = [0,0]) -> Seed {
+    static func seed2D(_ seed: UInt, position: SIMD2<UInt> = [0, 0]) -> Seed {
         .init(value: seed, position: [position.x, position.y])
     }
-    
+
     /// Creates a new tridimensional seed
     ///
     /// - Parameters:
     ///   - seed: fixed reference value for the seed
     ///   - position: seed's starting position
     /// - Returns: a new `Seed` instance
-    static func seed3D(_ seed: UInt, position: SIMD3<UInt> = [0,0,0]) -> Seed {
+    static func seed3D(_ seed: UInt, position: SIMD3<UInt> = [0, 0, 0]) -> Seed {
         .init(value: seed, position: [position.x, position.y, position.z])
     }
-    
+
     /// Creates a new 4-dimensional seed
     ///
     /// - Parameters:
     ///   - seed: fixed reference value for the seed
     ///   - position: seed's starting position
     /// - Returns: a new `Seed` instance
-    static func seed4D(_ seed: UInt, position: SIMD4<UInt> = [0,0,0,0]) -> Seed {
-        .init(value: seed, position: [position.x, position.y, position.z,position.w])
+    static func seed4D(_ seed: UInt, position: SIMD4<UInt> = [0, 0, 0, 0]) -> Seed {
+        .init(value: seed, position: [position.x, position.y, position.z, position.w])
     }
 }
 

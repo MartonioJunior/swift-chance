@@ -8,18 +8,21 @@
 import Foundation
 @preconcurrency import Gen
 
-/// Special decoder based on Gen that generates any type in a controllable manner by using a custom data generator (`Gen<UInt64>`)
+/// Special decoder based on Gen that generates any type in a controllable manner
+/// by using a custom data generator (`Gen<UInt64>`)
 ///
 /// Can be used as a way of creating random test cases of any type
 public struct GeneratorDecoder: Decoder {
     // MARK: Decoder
     /// Base generator used for creating all values during the decoding process
     ///
-    /// `GeneratorDecoder` uses `UInt64` type as the data source for creating more complex data types inside of the application, passing it to `KeyedContainer`, `SingleValueContainer` and `UnkeyedContainer`
+    /// `GeneratorDecoder` uses `UInt64` type as the data source for creating more
+    /// complex data types inside of the application, passing it
+    /// to `KeyedContainer`, `SingleValueContainer` and `UnkeyedContainer`
     var dataGenerator: Gen<UInt64>
     public var codingPath: [any CodingKey] = []
-    public var userInfo: [CodingUserInfoKey : Any] = [:]
-    
+    public var userInfo: [CodingUserInfoKey: Any] = [:]
+
     public func container<Key: CodingKey>(
         keyedBy type: Key.Type
     ) throws -> KeyedDecodingContainer<Key> {
@@ -29,7 +32,7 @@ public struct GeneratorDecoder: Decoder {
     public func unkeyedContainer() throws -> any UnkeyedDecodingContainer {
         UnkeyedContainer(dataGenerator: dataGenerator)
     }
-    
+
     public func singleValueContainer() throws -> any SingleValueDecodingContainer {
         SingleValueContainer(dataGenerator: dataGenerator)
     }
@@ -43,7 +46,7 @@ extension GeneratorDecoder {
         var dataGenerator: Gen<UInt64>
         public var codingPath: [any CodingKey] = []
         public var allKeys: [Key] = []
-        
+
         public func contains(_ key: Key) -> Bool { return true }
 
         public func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T: Decodable {
@@ -59,13 +62,13 @@ extension GeneratorDecoder {
         ) throws -> KeyedDecodingContainer<NestedKey> {
             .init(KeyedContainer<NestedKey>(dataGenerator: dataGenerator))
         }
-        
+
         public func nestedUnkeyedContainer(
             forKey key: Key
         ) throws -> any UnkeyedDecodingContainer {
             UnkeyedContainer(dataGenerator: dataGenerator)
         }
-        
+
         public func superDecoder() throws -> any Decoder {
             GeneratorDecoder(dataGenerator: dataGenerator)
         }
@@ -84,7 +87,7 @@ extension GeneratorDecoder {
         var dataGenerator: Gen<UInt64>
 
         var codingPath: [any CodingKey] = []
-        
+
         func decodeNil() -> Bool {
             .init(truncating: .init(value: dataGenerator.run()))
         }
@@ -144,8 +147,8 @@ extension GeneratorDecoder {
         func decode(_ type: UInt64.Type) throws -> UInt64 {
             dataGenerator.run()
         }
-        
-        func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
+
+        func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
             try T(from: GeneratorDecoder(dataGenerator: dataGenerator))
         }
     }
@@ -160,25 +163,27 @@ extension GeneratorDecoder {
         var count: Int? = 3
         var isAtEnd: Bool { currentIndex == count }
         private(set) var currentIndex: Int = 0
-        
+
         mutating func decode<T: Decodable>(_ type: T.Type) throws -> T {
             defer { currentIndex += 1 }
             return try .init(from: GeneratorDecoder(dataGenerator: dataGenerator))
         }
-        
+
         mutating func decodeNil() throws -> Bool {
             defer { currentIndex += 1 }
             return .init(truncating: .init(value: dataGenerator.run()))
         }
-        
-        mutating func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
+
+        mutating func nestedContainer<NestedKey>(
+            keyedBy type: NestedKey.Type
+        ) throws -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
             .init(KeyedContainer<NestedKey>(dataGenerator: dataGenerator))
         }
-        
+
         mutating func nestedUnkeyedContainer() throws -> any UnkeyedDecodingContainer {
             UnkeyedContainer(dataGenerator: dataGenerator)
         }
-        
+
         mutating func superDecoder() throws -> any Decoder {
             GeneratorDecoder(dataGenerator: dataGenerator)
         }

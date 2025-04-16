@@ -33,7 +33,7 @@ public extension Gen where Value == [Int] {
     static func roll(_ amount: Gen<Int> = .always(1), dice: Dice) -> Gen<[Int]> {
         dice.elementGenerator.array(of: amount)
     }
-    
+
     /// SwiftChance: Creates a new generator that simulates a dice roll
     ///
     /// - Parameters:
@@ -44,4 +44,3 @@ public extension Gen where Value == [Int] {
         roll(amount, dice: .d(sides))
     }
 }
-

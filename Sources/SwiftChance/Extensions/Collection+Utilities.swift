@@ -12,7 +12,7 @@ public extension Collection {
     var elementGenerator: Gen<Element> {
         Gen.element(of: self).compactMap({ $0 })
     }
-    
+
     /// Generator that can return any index of this collection
     var indexGenerator: Gen<Index> {
         Gen.element(of: indices).compactMap({ $0 })

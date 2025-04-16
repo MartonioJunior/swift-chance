@@ -12,7 +12,7 @@ public extension Gen {
     /// Returns a random value
     /// - Returns: A random value
     func callAsFunction() -> Value { run() }
-    
+
     /// Returns a random value
     /// - Parameters:
     ///     - generator: A random number generator
@@ -20,7 +20,7 @@ public extension Gen {
     func callAsFunction<G: RandomNumberGenerator>(using generator: inout G) -> Value {
         run(using: &generator)
     }
-    
+
     // MARK: Static Methods
     /// Creates a new generator based on a function that isn't influenced by the `RandomNumberGenerator`
     ///
