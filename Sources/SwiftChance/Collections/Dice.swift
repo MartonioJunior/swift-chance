@@ -6,13 +6,25 @@
 //
 
 import Foundation
-import Gen
+public import Gen
 
 /// Represents a set of possible outcomes with equal weight
-public typealias Dice = [Int]
+public struct Dice {
+    // MARK: Variables
+    var sides: [Int]
+
+    // MARK: Initializers
+    public init(_ sides: some Sequence<Int>) {
+        self.sides = Array(sides)
+    }
+}
 
 // MARK: DotSyntax
 public extension Dice {
+    /// SwiftChance: Create a generator that simulates a dice roll
+    /// 
+    /// - Returns: A generator that simulates a dice roll
+    var rollGenerator: Gen<Int> { sides.elementGenerator }
     /// SwiftChance: Creates a new dice with the specified number of sides
     ///
     /// - Parameters:
@@ -23,6 +35,34 @@ public extension Dice {
     }
 }
 
+// MARK: Self: Collection
+extension Dice: Collection {
+    public typealias Index = Int
+    public typealias Element = Int
+
+    public var startIndex: Index { sides.startIndex }
+    public var endIndex: Index { sides.endIndex }
+
+    public subscript(position: Index) -> Element { sides[position] }
+    public func index(after i: Index) -> Index { sides.index(after: i) }
+}
+
+// MARK: Self: Equatable
+extension Dice: Equatable {}
+
+// MARK: Self: ExpressibleByArrayLiteral
+extension Dice: ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = Int
+
+    public init(arrayLiteral elements: Int...) {
+        self.init(elements)
+    }
+}
+
+// MARK: Self: Sendable
+extension Dice: Sendable {}
+
+// MARK: Gen (EX)
 public extension Gen where Value == [Int] {
     /// SwiftChance: Creates a new generator that simulates a dice roll
     ///
@@ -30,8 +70,8 @@ public extension Gen where Value == [Int] {
     ///   - amount: Number of times the dice will be rolled
     ///   - dice: Dice used by the generator
     /// - Returns: An array with the dice roll outcomes
-    static func roll(_ amount: Gen<Int> = .always(1), dice: Dice) -> Gen<[Int]> {
-        dice.elementGenerator.array(of: amount)
+    static func roll(_ amount: Gen<Int> = .always(1), _ dice: Dice) -> Gen<[Int]> {
+        dice.rollGenerator.array(of: amount)
     }
 
     /// SwiftChance: Creates a new generator that simulates a dice roll
@@ -41,6 +81,6 @@ public extension Gen where Value == [Int] {
     ///   - sides: Number of sides the dice has
     /// - Returns: An array with the dice roll outcomes
     static func roll(_ amount: Gen<Int> = .always(1), d sides: Int) -> Gen<[Int]> {
-        roll(amount, dice: .d(sides))
+        roll(amount, .d(sides))
     }
 }
