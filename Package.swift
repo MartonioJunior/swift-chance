@@ -4,7 +4,8 @@
 import PackageDescription
 
 let chanceDependencies: [Target.Dependency] = [
-    .product(name: "Gen", package: "swift-gen")
+    .product(name: "Gen", package: "swift-gen"),
+    .product(name: "NonEmpty", package: "swift-nonempty")
 ]
 
 let settings: [SwiftSetting] = [
@@ -22,17 +23,16 @@ let package = Package(
         .watchOS(.v9)
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "SwiftChance",
-            targets: ["SwiftChance"]),
+            targets: ["SwiftChance"]
+        )
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-gen.git", from: "0.4.0")
+        .package(url: "https://github.com/pointfreeco/swift-gen.git", from: "0.4.0"),
+        .package(url: "https://github.com/pointfreeco/swift-nonempty", .upToNextMajor(from: "0.5.0"))
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "SwiftChance",
             dependencies: chanceDependencies,
@@ -41,7 +41,7 @@ let package = Package(
         .testTarget(
             name: "SwiftChanceTests",
             dependencies: ["SwiftChance"]
-        ),
+        )
     ],
     swiftLanguageModes: [.v6]
 )
