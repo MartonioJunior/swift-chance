@@ -46,6 +46,16 @@ public struct Seed {
         self.position = position
     }
 
+    public init(_ seed: UInt, position: UInt...) {
+        self.value = seed
+        self.position = position
+    }
+
+    public init<S: SIMD>(_ seed: UInt, position: S = .zero) where S.Scalar == UInt {
+        self.value = seed
+        self.position = position.indices.map { position[$0] }
+    }
+
     // MARK: Static Methods
     /// Creates a new unidimensional seed
     ///
