@@ -1,0 +1,18 @@
+name: "CI workflow"
+description: "CI workflow for Swift Chance"
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Resolve Packages
+      run: swift package resolve
+    
+    - name: Build
+      run: swift build -v
+    
+    - name: Test
+      run: swift test -v
