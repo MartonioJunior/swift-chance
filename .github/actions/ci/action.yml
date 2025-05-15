@@ -10,9 +10,12 @@ runs:
 
     - name: Resolve Packages
       run: swift package resolve
+      shell: bash
     
     - name: Build
       run: swift build -v
+      shell: bash
     
     - name: Test
       run: swift test -v
+      shell: bash
