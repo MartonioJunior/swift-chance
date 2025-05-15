@@ -31,7 +31,9 @@ public extension Dice {
     ///     - sides: Number of sides in the dice
     /// - Returns: A new `Dice` from 1 ... `sides`
     static func d(_ sides: Int) -> Dice {
-        Dice(1...sides)
+        guard sides > 0 else { return Dice([]) }
+
+        return Dice(1...sides)
     }
 }
 
