@@ -1,17 +1,22 @@
-name: Swift
+name: CI
 
 on:
   push:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  darwin:
     name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
     strategy:
       matrix:
-        swift: ["5.9"]
+        swift: ["6.0"]
         os: [ubuntu-latest, macos-13]
     runs-on: ${{ matrix.os }}
 
