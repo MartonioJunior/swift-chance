@@ -1,66 +1,53 @@
-name: Docuemntation
+name: DocC Publishing
 
 on:
   release:
     types: [published]
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: ["main"]
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
 concurrency:
-    group: docs-${{ github.ref }}
-    cancel-in-progress: true
-
+  group: "pages"
+  cancel-in-progress: true
+  
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: macos-15
     steps:
-      - name: Select Xcode 16.2
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app
-      - name: Checkout Package
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v3
+      - id: pages
+        name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Select Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
         with:
-          fetch-depth: 0
-      - name: Checkout gh-pages Branch
-        uses: actions/checkout@v4
+          xcode-version: latest-stable
+      - name: Build DocC
+        run: |
+          xcodebuild docbuild -scheme SwiftChance \
+            -configuration Release \
+            -derivedDataPath /tmp/docc \
+            -destination 'platform=macOS' \
+            -toolchain "swift latest";
+          $(xcrun -f docc -toolchain "swift latest") process-archive \
+            transform-for-static-hosting $(find /tmp/docc -type d -name 'SwiftChance.doccarchive') \
+            --hosting-base-path SwiftChance \
+            --output-path docs;
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          ref: gh-pages
-          path: docs-out
-      - name: Build documentation
-        run: >
-          rm -rf docs-out/.git;
-          rm -rf docs-out/main;
-          git tag -l --sort=-v:refname | grep -e "\d\+\.\d\+.0" | tail -n +6 | xargs -I {} rm -rf {};
-
-          for tag in $(echo "main"; git tag -l --sort=-v:refname | grep -e "\d\+\.\d\+.0" | head -6);
-          do
-            if [ -d "docs-out/$tag/data/documentation/swift-chance" ]
-            then
-              echo "✅ Documentation for "$tag" already exists.";
-            else
-              echo "⏳ Generating documentation for Chance @ "$tag" release.";
-              rm -rf "docs-out/$tag";
-
-              git checkout .;
-              git checkout "$tag";
-
-              swift package \
-                --allow-writing-to-directory docs-out/"$tag" \
-                generate-documentation \
-                --target Chance \
-                --output-path docs-out/"$tag" \
-                --transform-for-static-hosting \
-                --hosting-base-path /swift-chance/"$tag" \
-                && echo "✅ Documentation generated for Chance @ "$tag" release." \
-                || echo "⚠️ Documentation skipped for Chance @ "$tag".";
-            fi;
-          done
-      - name: Fix permissions
-        run: 'sudo chown -R $USER docs-out'
-      - name: Publish documentation to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.7
-        with:
-          branch: gh-pages
-          folder: docs-out
-          single-commit: true
+          path: 'docs'
+      - id: deployment
+        name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

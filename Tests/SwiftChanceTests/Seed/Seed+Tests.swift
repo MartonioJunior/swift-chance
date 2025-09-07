@@ -19,7 +19,7 @@ struct SeedTests {
     @Test("Creates New Seed with Index", arguments: [
         (Seed(value: 13, position: [2, 3, 1]), UInt(13), [2, 3, 1])
     ])
-    func `init`(seed: Seed, value: UInt, position: [UInt]) async throws {
+    func initializer(seed: Seed, value: UInt, position: [UInt]) async throws {
         #expect(seed.value == value)
         #expect(seed.position == position)
     }

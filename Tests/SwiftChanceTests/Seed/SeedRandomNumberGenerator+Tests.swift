@@ -13,7 +13,7 @@ struct SeedRandomNumberGeneratorTests {
     @Test("Creates Generator Based on Formula and Seed", arguments: [
         (Seed.seed1D(24), SeedRNG.squirrelFive)
     ])
-    func `init`(seed: Seed, formula: @escaping SeedRNG.Formula) async throws {
+    func initializer(seed: Seed, formula: @escaping SeedRNG.Formula) async throws {
         let rng = SeedRandomNumberGenerator(seed, formula: formula)
         
         #expect(rng.seed == seed)

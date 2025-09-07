@@ -1,47 +1,93 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
 
-let chanceDependencies: [Target.Dependency] = [
-    .product(name: "Gen", package: "swift-gen"),
-    .product(name: "NonEmpty", package: "swift-nonempty")
+// MARK: - Utilities
+public enum UpcomingFeatures: String, CaseIterable {
+    case existentialAny
+    case fullTypedThrows
+    case internalImportsByDefault
+    case memberImportVisibility
+    case nonescapableTypes
+    case nonisolatedNonsendingByDefault
+    case inferIsolatedConformances
+    case valueGenerics
+
+    var asSetting: SwiftSetting { .enableUpcomingFeature(rawValue.capitalized) }
+}
+
+public extension Array where Element == SwiftSetting {
+    static var upcomingFeatures: Self { UpcomingFeatures.allCases.map(\.asSetting) }
+}
+
+func dep(local: String) -> Package.Dependency {
+    .package(path: local)
+}
+
+func dep(url: String, _ version: Range<Version>, local: String = "") -> Package.Dependency {
+    if local.isEmpty {
+        .package(url: url, version)
+    } else {
+        dep(local: local)
+    }
+}
+
+func lib(_ name: String, targets: String...) -> Product {
+    .library(name: name, targets: targets)
+}
+
+func platformDeps(_ platforms: SupportedPlatform...) -> [SupportedPlatform] {
+    platforms
+}
+
+func targetDep(name: String, package: String) -> Target.Dependency {
+    .product(name: name, package: package)
+}
+
+// MARK: - Dependencies
+let gen = targetDep(name: "Gen", package: "swift-gen")
+
+let dependencies = [
+    dep(url: "https://github.com/pointfreeco/swift-gen.git", .upToNextMajor(from: "0.4.0")),
 ]
 
-let settings: [SwiftSetting] = [
-    .enableUpcomingFeature("ExistentialAny"),
-    .enableUpcomingFeature("FullTypedThrows"),
-    .enableUpcomingFeature("InternalImportsByDefault")
+// MARK: - Targets
+let targets: [Target] = [
+    .target(
+        name: "SwiftChance",
+        dependencies: [gen],
+        swiftSettings: .upcomingFeatures
+    )
 ]
 
+let testTargets: [Target] = targets.map {
+    .testTarget(
+        name: "\($0.name)Tests",
+        dependencies: [Target.Dependency(stringLiteral: $0.name)] + $0.dependencies
+    )
+}
+
+// MARK: - Products
+let products = [
+    lib("SwiftChance", targets: "SwiftChance")
+]
+
+// MARK: - Supported Platforms
+let supportedPlatforms = platformDeps(
+    .macOS(.v13),
+    .iOS(.v16),
+    .tvOS(.v16),
+    .watchOS(.v9)
+)
+
+// MARK: - PackageDescription
 let package = Package(
     name: "SwiftChance",
-    platforms: [
-        .macOS(.v13),
-        .iOS(.v16),
-        .tvOS(.v16),
-        .watchOS(.v9)
-    ],
-    products: [
-        .library(
-            name: "SwiftChance",
-            targets: ["SwiftChance"]
-        )
-    ],
-    dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-gen.git", from: "0.4.0"),
-        .package(url: "https://github.com/pointfreeco/swift-nonempty", .upToNextMajor(from: "0.5.0"))
-    ],
-    targets: [
-        .target(
-            name: "SwiftChance",
-            dependencies: chanceDependencies,
-            swiftSettings: settings
-        ),
-        .testTarget(
-            name: "SwiftChanceTests",
-            dependencies: ["SwiftChance"]
-        )
-    ],
+    platforms: supportedPlatforms,
+    products: products,
+    dependencies: dependencies,
+    targets: targets + testTargets,
     swiftLanguageModes: [.v6]
 )
