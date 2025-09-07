@@ -16,7 +16,7 @@ struct FixedWidthIntegerTests {
     func evaluateGenerators(gen: Gen<Int>, range: ClosedRange<Int>) async throws {
         #expect(gen.array(of: .always(100)).run().allSatisfy(range.contains))
     }
-    
+
     @Test("Returns valid fixed-width Integer value")
     func random() async throws {
         let gen: Gen<Int> = .f { .random() }
