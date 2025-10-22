@@ -22,7 +22,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -35,15 +35,17 @@ jobs:
           xcode-version: latest-stable
       - name: Build DocC
         run: |
-          xcodebuild docbuild -scheme SwiftChance \
+          xcodebuild docbuild \
+            -scheme SwiftChance \
             -configuration Release \
-            -derivedDataPath /tmp/docc \
-            -destination 'platform=macOS' \
-            -toolchain "swift latest";
-          $(xcrun -f docc -toolchain "swift latest") process-archive \
-            transform-for-static-hosting $(find /tmp/docc -type d -name 'SwiftChance.doccarchive') \
-            --hosting-base-path SwiftChance \
-            --output-path docs;
+            -derivedDataPath tmp/doc \
+            -destination 'platform=macOS'
+      - name: Process DocC into HTML
+        run: |
+          $(xcrun -f docc) process-archive \
+            transform-for-static-hosting $(find tmp/doc -type d -name 'SwiftChance.doccarchive') \
+            --output-path docs/ \
+            --hosting-base-path martoniojunior.github.io/SwiftChance/ \
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
