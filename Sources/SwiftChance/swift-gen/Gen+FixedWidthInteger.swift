@@ -8,7 +8,7 @@
 import Foundation
 import Gen
 
-public extension Gen where Value: FixedWidthInteger {
+public extension Gen where Value: FixedWidthInteger & Sendable {
     /// Creates a new generator for fixed-width integers
     static var fixedWidthInteger: Gen {
         .init {
@@ -17,7 +17,7 @@ public extension Gen where Value: FixedWidthInteger {
     }
 }
 
-public extension FixedWidthInteger {
+public extension FixedWidthInteger where Self: Sendable {
     /// Generates a new integer value
     /// - Returns: A new integer value
     static func random() -> Self {

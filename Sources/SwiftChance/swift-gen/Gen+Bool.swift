@@ -15,7 +15,7 @@ public extension Gen {
     /// - Returns:
     ///     `true` when `oddsOfTrue >= 1` or the odds are above or equal generated value.
     ///     `false` when `oddsOfTrue <= 0` or the odds are below the generated value.
-    static func chance<T>(
+    static func chance<T: Sendable>(
         _ oddsOfTrue: T,
         generator: Gen<T> = .normalBinaryFloatingPoint
     ) -> Gen<Bool> where T: BinaryFloatingPoint, T.RawSignificand: FixedWidthInteger {

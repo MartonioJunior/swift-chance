@@ -1,6 +1,6 @@
 //
 //  SeedRandomNumberGenerator+Tests.swift
-//  
+//
 //
 //  Created by Martônio Júnior on 21/03/24.
 //
@@ -15,11 +15,11 @@ struct SeedRandomNumberGeneratorTests {
     ])
     func initializer(seed: Seed, formula: @escaping SeedRNG.Formula) async throws {
         let rng = SeedRandomNumberGenerator(seed, formula: formula)
-        
+
         #expect(rng.seed == seed)
         #expect(rng.formula(1,2) == formula(1,2))
     }
-    
+
     @Test("Changes Seed State", arguments: [
         (SeedRandomNumberGenerator(.seed3D(67)), [1,0,0])
     ])
@@ -28,7 +28,7 @@ struct SeedRandomNumberGeneratorTests {
         rng.advanceState()
         #expect(rng.seed.position == expectedPosition)
     }
-    
+
     @Test("Reveals next value", arguments: [
         (Seed.seed1D(67), 9)
     ])
@@ -36,7 +36,7 @@ struct SeedRandomNumberGeneratorTests {
         let rng = SeedRandomNumberGenerator(seed, formula: { _,_ in UInt64(outcome) })
         #expect(rng.peek() == outcome)
     }
-    
+
     @Suite("RandomNumberGenerator conformance")
     struct RandomNumberGenerator {
         @Test("Returns next value advancing state", arguments: [
@@ -49,25 +49,26 @@ struct SeedRandomNumberGeneratorTests {
             #expect(rng.seed.position == expectedPosition)
         }
     }
-    
+
     @Suite("Formulas Implemented")
     struct Formula {
-        func score(_ generator: Gen<UInt64>) -> Double {
+        func score(_ generator: Gen<UInt64>, using rng: AnyRandomNumberGenerator) -> Double {
+            var rng = rng
             let numberOfAttempts = 1000
-            
-            let result = generator.set(ofAtMost: .always(1000)).run()
-            
+
+            let result = generator.set(ofAtMost: .always(1000)).run(using: &rng)
+
             return Double(result.count) / Double(numberOfAttempts)
         }
-        
+
         @Test("Must have a 80% score or above", arguments: [
             (Seed.seed3D(67), SeedRNG.squirrelThree, 0.8),
             (Seed.seed3D(223), SeedRNG.squirrelFive, 0.8)
         ])
         func firstGuideline(seed: Seed, formula: @escaping SeedRNG.Formula, expectedScore: Double) async throws {
-            var rng = SeedRandomNumberGenerator(seed, formula: formula)
-            let generator: Gen<UInt64> = .f { rng.next() }
-            let score = score(generator)
+            let rng = SeedRandomNumberGenerator(seed, formula: formula)
+            let generator: Gen<UInt64> = .init { $0.next() }
+            let score = score(generator, using: rng.erasedToAnyRNG())
             #expect(score >= expectedScore)
         }
     }

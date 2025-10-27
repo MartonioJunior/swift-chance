@@ -27,7 +27,7 @@ public extension Gen {
     /// - Parameters:
     ///  closure: the function that returns a value
     /// - Returns: A generator that returns `Value`
-    static func f(_ closure: @escaping () -> Value) -> Gen<Value> {
+    static func f(_ closure: @escaping @Sendable () -> Value) -> Gen<Value> {
         .init { _ in closure() }
     }
 }
