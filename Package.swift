@@ -50,7 +50,7 @@ func targetDep(name: String, package: String) -> Target.Dependency {
 let gen = targetDep(name: "Gen", package: "swift-gen")
 
 let dependencies = [
-    dep(url: "https://github.com/pointfreeco/swift-gen.git", .upToNextMajor(from: "0.4.0")),
+    dep(url: "https://github.com/pointfreeco/swift-gen.git", .upToNextMajor(from: "0.5.0"))
 ]
 
 // MARK: - Targets
