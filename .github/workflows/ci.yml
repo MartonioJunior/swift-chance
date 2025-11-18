@@ -77,6 +77,7 @@ jobs:
         run: swift test --skip-build --enable-code-coverage --parallel
   
   build-windows:
+    name: Swift 6.2 on Windows
     runs-on: windows-latest
     timeout-minutes: 30
 
@@ -106,6 +107,7 @@ jobs:
         run: swift test --skip-build --enable-code-coverage --parallel
 
   build-android:
+    name: Swift 6.2 on Android
     runs-on: ubuntu-latest
 
     steps:

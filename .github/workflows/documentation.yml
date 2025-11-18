@@ -29,9 +29,6 @@ jobs:
       - uses: SwiftyLab/setup-swift@latest
         with:
           swift-version: "6.2.0"
-      - id: pages
-        name: Setup Pages
-        uses: actions/configure-pages@v4
       - name: Generate Documentation
         run: |
           # Enable the swift-docc-plugin dependency  
@@ -71,6 +68,9 @@ jobs:
       #       --hosting-base-path martoniojunior.github.io/SwiftChance/;
 
       #     echo "<script>window.location.href += \"/documentation/swiftchance\"</script>" > docs/index.html;
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
